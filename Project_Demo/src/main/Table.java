@@ -50,6 +50,8 @@ public class Table extends JFrame {
 	
 	DefaultTableModel model = new DefaultTableModel(data,columnNames);
 	
+	
+	
 	Connection con;
 	Statement st;
 	PreparedStatement pst;
@@ -119,6 +121,7 @@ public class Table extends JFrame {
 		table = new JTable(model);
 		JScrollPane sp = new JScrollPane(table);
 		sp.setBounds(10,10,465,280);
+		//sp.setPreferredSize(new java.awt.Dimension(400, 200));
 		head.add(sp);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
