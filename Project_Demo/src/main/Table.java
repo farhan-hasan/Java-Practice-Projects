@@ -1,4 +1,4 @@
-package main;
+ package main;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,10 +11,12 @@ import java.awt.event.MouseListener;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
+import java.text.MessageFormat;
 
 import javax.swing.DefaultButtonModel;
 import javax.swing.JButton;
@@ -25,18 +27,22 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+import com.mysql.cj.protocol.Message;
 
 public class Table extends JFrame {
 	JTable table;
 	
 	JPanel head,foot;
 	
-	JTextField slT,nmT,idT;
+	JTextField slT,nmT,idT,srchT;
 	
-	JButton add,update,del;
+	JButton add,update,del,search,print;
 	
-	JLabel serial,name,id;
+	JLabel serial,name,id,srch;
 	
 	Object data[][] = {};
 	// // Table
@@ -46,6 +52,7 @@ public class Table extends JFrame {
 	
 	Connection con;
 	Statement st;
+	PreparedStatement pst;
 	ResultSet rs;
 	String serialFromTF,nameFromTF,idFromTF;
 	public Table() {
@@ -54,6 +61,7 @@ public class Table extends JFrame {
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			con = DriverManager.getConnection("jdbc:mysql://localhost/jdbc","root","");
 			st = con.createStatement();
+			
 			rs = st.executeQuery("SELECT * FROM T");
 			while(rs.next()) {
 				int serial = rs.getInt(1);
@@ -65,11 +73,27 @@ public class Table extends JFrame {
 				model.addRow(newRow);
 			}
 			
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		}
+		
+		// // sum query
+//		try {
+//			PreparedStatement statement =  con.prepareStatement("select sum(serial) from t ");
+//		    ResultSet result = statement.executeQuery();
+//		    
+//		    while(result.next()) {
+//		    	System.out.println(result.getString(1));
+//			}
+//			
+//		} catch (SQLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 		
 		setSize(500,500);
 		setLocationRelativeTo(null);
@@ -240,19 +264,63 @@ public class Table extends JFrame {
 		del.setFocusable(false);
 		foot.add(del);
 		
+		search = new JButton("Search");
+		search.setFont(my_font);
+		search.setBounds(50,223,100,20);
+		search.setBackground(Color.darkGray);
+		search.setForeground(Color.WHITE);
+		search.setFocusable(false);
+		search.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(model);
+				table.setRowSorter(sorter);
+				sorter.setRowFilter(RowFilter.regexFilter(srchT.getText()));
+			}
+		});
+		foot.add(search);
+		
+		
+		srchT = new JTextField();
+		srchT.setBounds(150,223,200,20);
+		foot.add(srchT);
+		
+		print = new JButton("Print");
+		print.setFont(my_font);
+		print.setBounds(350,223,100,20);
+		print.setBackground(Color.darkGray);
+		print.setForeground(Color.WHITE);
+		print.setFocusable(false);
+		print.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				MessageFormat header = new MessageFormat("Student list");
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					table.print(JTable.PrintMode.NORMAL, header, footer);
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(null, "Nothing to print");
+				}
+			}
+		});
+		foot.add(print);
+		
 		
 		setVisible(true);
 		
-		try {
-			int up = st.executeUpdate("CREATE TABLE newTable(serial INT,name varchar(20),id INT)");
-			if(up==1) {
-				JOptionPane.showMessageDialog(null, "Table created");
-			}
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			//e1.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Table already exits!");
-		}
+		// Creating a table
+//		try {
+//			int up = st.executeUpdate("CREATE TABLE newTable(serial INT,name varchar(20),id INT)");
+//			if(up==1) {
+//				JOptionPane.showMessageDialog(null, "Table created");
+//			}
+//		} catch (SQLException e1) {
+//			// TODO Auto-generated catch block
+//			//e1.printStackTrace();
+//			JOptionPane.showMessageDialog(null, "Table already exits!");
+//		}
 	}
 
 	

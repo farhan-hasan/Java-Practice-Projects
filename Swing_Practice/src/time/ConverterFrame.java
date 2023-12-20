@@ -17,9 +17,10 @@ public class ConverterFrame extends JFrame {
 	
 	public ConverterFrame () {
 		setSize(500,500);
-		setLayout(null);
+		//setLayout(null);
 		setDefaultCloseOperation(3);
 		setLocationRelativeTo(null);
+		setResizable(true);
 		
 		header = new JPanel();
 		header.setBounds(0, 0, 500, 250);
