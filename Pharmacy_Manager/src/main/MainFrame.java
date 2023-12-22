@@ -3,6 +3,8 @@ package main;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.sql.SQLException;
+import java.text.MessageFormat;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -20,29 +22,30 @@ public class MainFrame extends JFrame{
 	JLabel discountLabel, totalAmountLabel, cashPaidLabel, returnLabel, counterNumberLabel, discountTotalAmountLabel;
 	JLabel customerNameLabel, customerAddressLabel, customerMobileNumberLabel, customerDetailsLabel;
 	JLabel itemNameLabel, quantityLabel, companyNameLabel;
-	JButton printButton, clearButton, addButton, deleteButton;
+	JButton updateButton, printButton, clearButton, addButton, deleteButton, applyDiscountButton, calculatReturnButton;
 	JTextField discountTextField, totalAmountTextField, cashPaidTextField, returnTextField, discountTotalAmountTextField;
 	JTextField customerNameTextField, customerAddressTextField, customerPhoneNumberTextField;
 	JTextField counterNumberTextField, quantityTextField, companyNameTextField, itemNameTextField;
 	JTable receiptTable;
 	JScrollPane receiptTableScrollPane;
 	Object receiptData[][] = {};
-	String receiptColums[] = {"Serial","Name","Rate","Quantity","Amount","Available"};
-	DefaultTableModel model = new DefaultTableModel(receiptData,receiptColums);
+	String receiptColums[] = {"Serial","Name","Rate","Quantity","Amount"};
+	DefaultTableModel receiptTableModel = new DefaultTableModel(receiptData,receiptColums);
 	
 	// Stock tab variables
-	JLabel stockCompanyNameLabel,stockDrugListLabel,stockSearchMedicineLNameabel,stockSearchLabel,stockAddMedicineLabel;
+	JLabel stockCompanyNameLabel,stockDrugListLabel,stockSearchMedicineLNameLabel,stockSearchLabel,stockAddMedicineLabel;
 	JTextField stockSearchCompanyNameTextField,stockSearchMedicineTextField;
 	JTable stockTable;
 	Object stockData[][] = {};
-	String stockColumnNames[] = {"Name","Rate","Quantity","Type"};
+	String stockColumnNames[] = {"Name","MRP","TP","Quantity","Company"};
 	DefaultTableModel stockModel = new DefaultTableModel(stockData,stockColumnNames);
-	JLabel stockAddProductNameLabel,stockAddProductRateLabel,stockAddQuantityLabel,stockAddTypeLabel;
+	JLabel stockAddProductNameLabel,stockAddProductTPLabel,stockAddProductMRPLabel,stockAddQuantityLabel,stockAddCompanyLabel;
 	JPanel stockInformationPanel;
-	JButton stockAddButton,stockSeacrchButton,stockPrintButton;
-	JTextField stockAddProductNameTextField,stockAddProductRateTextField,stockAddQuantityTextField,stockAddTypeTextField;
+	JButton stockAddButton,stockSearchButton,stockPrintButton,stockDeleteButton,stockUpdateButton;
+	JTextField stockAddProductNameTextField,stockAddProductTPTextField,stockAddProductMRPTextField,stockAddQuantityTextField,stockAddCompanyTextField;
 	
 	// History tab variables
+	JPanel historyDetailsPanel;
 	JLabel historyTimePeriodLabel, historyCounterNumberLabel, historyTotalItemsLabel, historyTotalQuantityLabel, historyTotalDiscountLabel;
 	JLabel historyTotalMRPLabel, historyTotalBuyingPriceLabel, historyTotalMarginLabel;
 	JLabel historyFromLabel, historyToLabel;
@@ -60,9 +63,6 @@ public class MainFrame extends JFrame{
 	Object ordersData[][] = {};
 	String ordersColumnNames[] = {"Serial","Names","Company","Quantity"};
 	DefaultTableModel OrdersModel = new DefaultTableModel(ordersData,ordersColumnNames);
-	
-	
-	
 	
 	
 	
@@ -96,12 +96,24 @@ public class MainFrame extends JFrame{
 		recepitTablePanel = new JPanel();
 		recepitTablePanel.setLayout(null);
 		recepitTablePanel.setBounds(0, 0, 800, 500);
-		recepitTablePanel.setBackground(Color.gray);
+		recepitTablePanel.setBackground(Color.white);
 		
-		receiptTable = new JTable(model);
+		receiptTable = new JTable(receiptTableModel);
 		receiptTableScrollPane = new JScrollPane(receiptTable);
-		receiptTableScrollPane.setBounds(0, 0, 800, 500);
+		receiptTableScrollPane.setBounds(10, 10, 790, 490);
 		recepitTablePanel.add(receiptTableScrollPane);
+		receiptTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = receiptTable.getSelectedRow();
+				
+				String item = receiptTableModel.getValueAt(idx, 1).toString();
+				String quantity = receiptTableModel.getValueAt(idx, 3).toString();
+				
+				itemNameTextField.setText(item);
+				quantityTextField.setText(quantity);
+			}
+		});
 		
 		recieptPanel.add(recepitTablePanel);
 		
@@ -126,8 +138,16 @@ public class MainFrame extends JFrame{
 		receiptPayPanel.add(discountLabel);
 		
 		discountTextField = new JTextField();
-		discountTextField.setBounds(150, 90, 200, 30);
+		discountTextField.setBounds(150, 90, 100, 30);
 		receiptPayPanel.add(discountTextField);
+		
+		applyDiscountButton = new JButton("Apply");
+		applyDiscountButton.setBounds(260, 90, 90, 30);
+		applyDiscountButton.setFocusable(false);
+		applyDiscountButton.setBackground(Color.gray);
+		applyDiscountButton.setForeground(Color.white);
+		applyDiscountButton.setFont(my_font);
+		receiptPayPanel.add(applyDiscountButton);
 		
 		discountTotalAmountLabel = new JLabel("Total Payable");
 		discountTotalAmountLabel.setBounds(20, 160, 200, 30);
@@ -144,8 +164,16 @@ public class MainFrame extends JFrame{
 		receiptPayPanel.add(cashPaidLabel);
 		
 		cashPaidTextField = new JTextField();
-		cashPaidTextField.setBounds(560, 20, 200, 30);
+		cashPaidTextField.setBounds(560, 20, 100, 30);
 		receiptPayPanel.add(cashPaidTextField);
+		
+		calculatReturnButton = new JButton("Count");
+		calculatReturnButton.setBounds(670, 20, 90, 30);
+		calculatReturnButton.setFocusable(false);
+		calculatReturnButton.setBackground(Color.gray);
+		calculatReturnButton.setForeground(Color.white);
+		calculatReturnButton.setFont(my_font);
+		receiptPayPanel.add(calculatReturnButton);
 		
 		returnLabel = new JLabel("Return");
 		returnLabel.setBounds(380, 90, 200, 30);
@@ -162,10 +190,25 @@ public class MainFrame extends JFrame{
 		printButton.setBackground(Color.gray);
 		printButton.setForeground(Color.white);
 		printButton.setFont(my_font);
+		printButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(receiptTableModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+				
+				MessageFormat header = new MessageFormat("Receipt");
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					receiptTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		receiptPayPanel.add(printButton);
-		
-		
-		
 		
 		recieptPanel.add(receiptPayPanel);
 		
@@ -182,8 +225,6 @@ public class MainFrame extends JFrame{
 		counterNumberLabel.setBounds(10, 10, 300, 20);
 		counterNumberLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
 		recepitCustomerDataPanel.add(counterNumberLabel);
-		
-		// // need to add dynamic label expansion!!
 		
 		
 		companyNameLabel = new JLabel("Company Name");
@@ -219,6 +260,30 @@ public class MainFrame extends JFrame{
 		addButton.setBackground(Color.gray);
 		addButton.setForeground(Color.white);
 		addButton.setFont(my_font);
+		addButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String productName = itemNameTextField.getText();
+				String quantity = quantityTextField.getText();
+				String companyName = companyNameTextField.getText();
+				if(productName.equals("") || quantity.equals("") || companyName.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter data in all the fields.");
+					return;
+				}
+				double rate = 0.0, amount = 0.0;
+				int serial = receiptTableModel.getRowCount() + 1, available = 0;
+				
+				Object newRow[] = {serial,productName,rate,quantity,amount,available};
+				
+				receiptTableModel.addRow(newRow);
+				
+				// // DB implementation left
+				itemNameTextField.setText("");
+				quantityTextField.setText("");
+				companyNameTextField.setText("");
+			}
+			
+		});
 		recepitCustomerDataPanel.add(addButton);
 		
 		deleteButton = new JButton("Delete");
@@ -227,7 +292,50 @@ public class MainFrame extends JFrame{
 		deleteButton.setBackground(Color.gray);
 		deleteButton.setForeground(Color.white);
 		deleteButton.setFont(my_font);
+		deleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int serial = receiptTableModel.getRowCount();
+					int idx = receiptTable.getSelectedRow();
+					receiptTableModel.removeRow(receiptTable.getSelectedRow());
+					for(int i=1;i<serial;i++) {
+						receiptTableModel.setValueAt(i, i-1, 0);
+					}
+				
+				} catch(Exception e1) {
+					if(receiptTableModel.getRowCount()==0)
+						JOptionPane.showMessageDialog(null, "No data found!");
+					else 
+						JOptionPane.showMessageDialog(null, "Please select a row!");
+				}
+				
+			}
+		});
 		recepitCustomerDataPanel.add(deleteButton);
+		
+		updateButton = new JButton("Update");
+		updateButton.setBounds(75, 360, 120, 50);
+		updateButton.setFocusable(false);
+		updateButton.setBackground(Color.gray);
+		updateButton.setForeground(Color.white);
+		updateButton.setFont(my_font);
+		updateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String item = itemNameTextField.getText();
+				String quantity = quantityTextField.getText();
+				int idx = receiptTable.getSelectedRow();
+				
+				receiptTableModel.setValueAt(item, idx, 1);
+				receiptTableModel.setValueAt(quantity, idx, 3);
+				//JFrame f = new JFrame();
+				
+			}
+		});
+		recepitCustomerDataPanel.add(updateButton);
 		
 		customerDetailsLabel = new JLabel("Customer Details:");
 		customerDetailsLabel.setBounds(10, 430, 300, 20);
@@ -266,7 +374,7 @@ public class MainFrame extends JFrame{
 		
 		managementPane.add("Receipt",recieptPanel);
 		
-		// Stock Tab
+		// // Stock Tab
 		stockPanel = new JPanel();
 		stockPanel.setBackground(Color.white);
 		stockPanel.setLayout(null);
@@ -282,17 +390,25 @@ public class MainFrame extends JFrame{
 		stockTable = new JTable(stockModel);
 		JScrollPane stockScrollPane = new JScrollPane(stockTable);
 		stockScrollPane.setBounds(20,50,750,500);
+		stockTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				int idx = stockTable.getSelectedRow();
+				
+				String name = stockModel.getValueAt(idx, 0).toString();
+				String mrp = stockModel.getValueAt(idx, 1).toString();
+				String tp = stockModel.getValueAt(idx, 2).toString();
+				String quantity = stockModel.getValueAt(idx, 3).toString();
+				String company = stockModel.getValueAt(idx, 4).toString();
+				
+				stockAddProductNameTextField.setText(name);
+				stockAddProductMRPTextField.setText(mrp);
+				stockAddProductTPTextField.setText(tp);
+				stockAddQuantityTextField.setText(quantity);
+				stockAddCompanyTextField.setText(company);
+			}
+		});
 		stockPanel.add(stockScrollPane);
- 
- 
- 
-		stockPrintButton = new JButton("Print");
-		stockPrintButton.setFont(my_font);
-		stockPrintButton.setFocusable(false);
-		stockPrintButton.setBounds(270,630,100,40);
-		stockPrintButton.setBackground(Color.darkGray);
-		stockPrintButton.setForeground(Color.white);
-		stockPanel.add(stockPrintButton);
+
  
  
 		stockInformationPanel = new JPanel();
@@ -303,53 +419,46 @@ public class MainFrame extends JFrame{
  
 		// Search area
 		stockSearchLabel = new JLabel("Search Here");
-		stockSearchLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		stockSearchLabel.setBounds(10,10, 170, 30);
+		stockSearchLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+		stockSearchLabel.setBounds(10,0, 170, 30);
 		stockSearchLabel.setForeground(Color.black);
 		stockInformationPanel.add(stockSearchLabel);
  
  
 		stockCompanyNameLabel = new JLabel("Company Name ");
 		stockCompanyNameLabel.setFont(my_font);
-		stockCompanyNameLabel.setBounds(10,50, 170, 30);
+		stockCompanyNameLabel.setBounds(10,40, 170, 30);
 		stockCompanyNameLabel.setForeground(Color.black);
 		stockInformationPanel.add(stockCompanyNameLabel);
  
  
 		stockSearchCompanyNameTextField = new JTextField();
-		stockSearchCompanyNameTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockSearchCompanyNameTextField.setBounds(10,90,270,30);
+		stockSearchCompanyNameTextField.setFont(my_font);
+		stockSearchCompanyNameTextField.setBounds(10,80,270,30);
 		stockSearchCompanyNameTextField.setBackground(Color.white);
 		stockInformationPanel.add(stockSearchCompanyNameTextField);
  
  
-		stockSearchMedicineLNameabel = new JLabel("Medicine Name");
-		stockSearchMedicineLNameabel.setFont(my_font);
-		stockSearchMedicineLNameabel.setBounds(10,120, 170, 30);
-		stockSearchMedicineLNameabel.setForeground(Color.black);
-		stockInformationPanel.add(stockSearchMedicineLNameabel);
+		stockSearchMedicineLNameLabel = new JLabel("Medicine Name");
+		stockSearchMedicineLNameLabel.setFont(my_font);
+		stockSearchMedicineLNameLabel.setBounds(10,110, 170, 30);
+		stockSearchMedicineLNameLabel.setForeground(Color.black);
+		stockInformationPanel.add(stockSearchMedicineLNameLabel);
  
  
 		stockSearchMedicineTextField = new JTextField();
-		stockSearchMedicineTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockSearchMedicineTextField.setBounds(10,160,270,30);
+		stockSearchMedicineTextField.setFont(my_font);
+		stockSearchMedicineTextField.setBounds(10,150,270,30);
 		stockSearchMedicineTextField.setBackground(Color.white);
 		stockInformationPanel.add(stockSearchMedicineTextField);
  
  
-		stockSeacrchButton = new JButton("Search");
-		stockSeacrchButton.setFont(my_font);
-		stockSeacrchButton.setFocusable(false);
-		stockSeacrchButton.setBounds(90,200,100,40);
-		stockSeacrchButton.setBackground(Color.darkGray);
-		stockSeacrchButton.setForeground(Color.white);
-		stockInformationPanel.add(stockSeacrchButton);
  
  
 		// Add area
 		stockAddMedicineLabel = new JLabel("Add Medicine");
-		stockAddMedicineLabel.setFont(new Font("Times New Roman", Font.BOLD, 30));
-		stockAddMedicineLabel.setBounds(10,260, 200, 30);
+		stockAddMedicineLabel.setFont(new Font("Times New Roman", Font.PLAIN, 30));
+		stockAddMedicineLabel.setBounds(10,240, 200, 30);
 		stockAddMedicineLabel.setForeground(Color.black);
 		stockInformationPanel.add(stockAddMedicineLabel);
  
@@ -357,84 +466,206 @@ public class MainFrame extends JFrame{
  
 		stockAddProductNameLabel = new JLabel("Name");
 		stockAddProductNameLabel.setFont(my_font);
-		stockAddProductNameLabel.setBounds(10,300, 170, 30);
+		stockAddProductNameLabel.setBounds(10,280, 170, 30);
 		stockAddProductNameLabel.setForeground(Color.black);
 		stockInformationPanel.add(stockAddProductNameLabel);
  
  
  
 		stockAddProductNameTextField = new JTextField();
-		stockAddProductNameTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockAddProductNameTextField.setBounds(10,340,270,30);
+		stockAddProductNameTextField.setFont(my_font);
+		stockAddProductNameTextField.setBounds(10,320,270,30);
 		stockAddProductNameTextField.setBackground(Color.white);
 		stockInformationPanel.add(stockAddProductNameTextField);
  
  
-		stockAddProductRateLabel = new JLabel("Rate");
-		stockAddProductRateLabel.setFont(my_font);
-		stockAddProductRateLabel.setBounds(10,380, 170, 30);
-		stockAddProductRateLabel.setForeground(Color.black);
-		stockInformationPanel.add(stockAddProductRateLabel);
+		stockAddProductMRPLabel = new JLabel("MRP");
+		stockAddProductMRPLabel.setFont(my_font);
+		stockAddProductMRPLabel.setBounds(10,360, 170, 30);
+		stockAddProductMRPLabel.setForeground(Color.black);
+		stockInformationPanel.add(stockAddProductMRPLabel);
  
-		stockAddProductRateTextField = new JTextField();
-		stockAddProductRateTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockAddProductRateTextField.setBounds(10,420,270,30);
-		stockAddProductRateTextField.setBackground(Color.white);
-		stockInformationPanel.add(stockAddProductRateTextField);
+		stockAddProductMRPTextField = new JTextField();
+		stockAddProductMRPTextField.setFont(my_font);
+		stockAddProductMRPTextField.setBounds(10,400,125,30);
+		stockAddProductMRPTextField.setBackground(Color.white);
+		stockInformationPanel.add(stockAddProductMRPTextField);
+		
+		stockAddProductTPLabel = new JLabel("TP");
+		stockAddProductTPLabel.setFont(my_font);
+		stockAddProductTPLabel.setBounds(145,360, 170, 30);
+		stockAddProductTPLabel.setForeground(Color.black);
+		stockInformationPanel.add(stockAddProductTPLabel);
+ 
+		stockAddProductTPTextField = new JTextField();
+		stockAddProductTPTextField.setFont(my_font);
+		stockAddProductTPTextField.setBounds(145,400,135,30);
+		stockAddProductTPTextField.setBackground(Color.white);
+		stockInformationPanel.add(stockAddProductTPTextField);
  
 		stockAddQuantityLabel = new JLabel("Quantity");
 		stockAddQuantityLabel.setFont(my_font);
-		stockAddQuantityLabel.setBounds(10,460, 170, 30);
+		stockAddQuantityLabel.setBounds(10,440, 170, 30);
 		stockAddQuantityLabel.setForeground(Color.black);
 		stockInformationPanel.add(stockAddQuantityLabel);
  
  
 		stockAddQuantityTextField = new JTextField();
-		stockAddQuantityTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockAddQuantityTextField.setBounds(10,500,270,30);
+		stockAddQuantityTextField.setFont(my_font);
+		stockAddQuantityTextField.setBounds(10,480,270,30);
 		stockAddQuantityTextField.setBackground(Color.white);
 		stockInformationPanel.add(stockAddQuantityTextField);
  
  
-		stockAddTypeLabel = new JLabel("Type");
-		stockAddTypeLabel.setFont(my_font);
-		stockAddTypeLabel.setBounds(10,540, 170, 30);
-		stockAddTypeLabel.setForeground(Color.black);
-		stockInformationPanel.add(stockAddTypeLabel);
+		stockAddCompanyLabel = new JLabel("Company");
+		stockAddCompanyLabel.setFont(my_font);
+		stockAddCompanyLabel.setBounds(10,520,170, 30);
+		stockAddCompanyLabel.setForeground(Color.black);
+		stockInformationPanel.add(stockAddCompanyLabel);
  
  
-		stockAddTypeTextField = new JTextField();
-		stockAddTypeTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		stockAddTypeTextField.setBounds(10,580,270,30);
-		stockAddTypeTextField.setBackground(Color.white);
-		stockInformationPanel.add(stockAddTypeTextField);
+		stockAddCompanyTextField = new JTextField();
+		stockAddCompanyTextField.setFont(my_font);
+		stockAddCompanyTextField.setBounds(10,560,270,30);
+		stockAddCompanyTextField.setBackground(Color.white);
+		stockInformationPanel.add(stockAddCompanyTextField);
+		
+		stockPrintButton = new JButton("Print");
+		stockPrintButton.setFont(my_font);
+		stockPrintButton.setFocusable(false);
+		stockPrintButton.setBounds(30,600,130,40);
+		stockPrintButton.setBackground(Color.darkGray);
+		stockPrintButton.setForeground(Color.white);
+		stockPrintButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(stockModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+				MessageFormat header = new MessageFormat("Stock list");
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					stockTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		stockPanel.add(stockPrintButton);
  
  
-		stockAddButton = new JButton("ADD");
+		stockAddButton = new JButton("Add");
 		stockAddButton.setFont(my_font);
 		stockAddButton.setFocusable(false);
-		stockAddButton.setBounds(90,630,100,40);
+		stockAddButton.setBounds(180,600,130,40);
 		stockAddButton.setBackground(Color.darkGray);
 		stockAddButton.setForeground(Color.white);
-		stockInformationPanel.add(stockAddButton);
+		stockAddButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String stockproductName = stockAddProductNameTextField.getText();
+				String stockMRP = stockAddProductMRPTextField.getText();
+				String stockTP = stockAddProductTPTextField.getText();
+				String stockQuantity = stockAddQuantityTextField.getText();
+				String stockCompanyName = stockAddCompanyTextField.getText();
+				if(stockproductName.equals("") || stockAddProductMRPTextField.equals("") || stockQuantity.equals("") || stockCompanyName.equals("") ||
+						stockAddProductTPTextField.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter data in all the fields.");
+					return;
+				}
+				double stock_Rate = 0.0, stock_Quantity = 0.0;
+				int serial = receiptTableModel.getRowCount() + 1, available = 0;
+				
+				Object newRow[] = {stockproductName,stockMRP,stockTP,stockQuantity,stockCompanyName};
+				
+				stockModel.addRow(newRow);
+				stockAddProductNameTextField.setText("");
+				stockAddProductMRPTextField.setText("");
+				stockAddProductTPTextField.setText("");
+				stockAddQuantityTextField.setText("");
+				stockAddCompanyTextField.setText("");
+			}
+		});
+		stockPanel.add(stockAddButton);
 		
+		
+		stockDeleteButton = new JButton("Delete");
+		stockDeleteButton.setFont(my_font);
+		stockDeleteButton.setFocusable(false);
+		stockDeleteButton.setBounds(330,600,130,40);
+		stockDeleteButton.setBackground(Color.darkGray);
+		stockDeleteButton.setForeground(Color.white);
+		stockDeleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try{
+					int stockDeleteIndex = stockTable.getSelectedRow();
+					
+					String stockName = stockModel.getValueAt(stockDeleteIndex, 0).toString();
+					String stockMRP = stockModel.getValueAt(stockDeleteIndex, 1).toString();
+					String stockTP = stockModel.getValueAt(stockDeleteIndex, 2).toString();
+					String stockQuantity = stockModel.getValueAt(stockDeleteIndex, 3).toString();
+					String stockCompany = stockModel.getValueAt(stockDeleteIndex, 4).toString();
+					
+					stockModel.removeRow(stockTable.getSelectedRow());	
+				} catch(Exception e1) {
+					if(stockModel.getRowCount()==0)
+						JOptionPane.showMessageDialog(null, "No data found!");
+					else 
+						JOptionPane.showMessageDialog(null, "Please select a row!");
+				}
+			}
+		});
+		stockPanel.add(stockDeleteButton);
+		
+		stockUpdateButton = new JButton("Update");
+		stockUpdateButton.setFont(my_font);
+		stockUpdateButton.setFocusable(false);
+		stockUpdateButton.setBounds(480,600,130,40);
+		stockUpdateButton.setBackground(Color.darkGray);
+		stockUpdateButton.setForeground(Color.white);
+		stockUpdateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String name = stockAddProductNameTextField.getText();
+				String mrp = stockAddProductMRPTextField.getText();
+				String tp = stockAddProductTPTextField.getText();
+				String quantity = stockAddQuantityTextField.getText();
+				String company = stockAddCompanyTextField.getText();
+				int idx = stockTable.getSelectedRow();
+				
+				stockModel.setValueAt(name, idx, 0);
+				stockModel.setValueAt(mrp, idx, 1);
+				stockModel.setValueAt(tp, idx, 2);
+				stockModel.setValueAt(quantity, idx, 3);
+				stockModel.setValueAt(company, idx, 4);
+				//JFrame f = new JFrame();
+				
+			}
+		});
+		stockPanel.add(stockUpdateButton);
+		
+		stockSearchButton = new JButton("Search");
+		stockSearchButton.setFont(my_font);
+		stockSearchButton.setFocusable(false);
+		stockSearchButton.setBounds(630,600,130,40);
+		stockSearchButton.setBackground(Color.darkGray);
+		stockSearchButton.setForeground(Color.white);
+		stockPanel.add(stockSearchButton);
 		
 				
 		managementPane.add("Stock",stockPanel);
 		
-		// History Tab
+		// // History Tab
 		historyPanel = new JPanel();
 		historyPanel.setBackground(Color.white);
 		historyPanel.setLayout(null);
-		
-//		JLabel historyTimePeriodLabel, historyCounterNumberLabel, historyTotalItemsLabel, historyTotalQuantityLabel, historyTotalDiscountLabel;
-//		JLabel historyTotalMRPLabel, historyTotalBuyingPriceLabel, historyTotalMarginLabel;
-//		JTextField historyTimePeriodTextField, historyCounterNumberTextField, historyTotalItemsTextField, historyTotalQuantityTextField;
-//		JTextField historyTotalDiscountTextField, historyTotalMRPTextField, historyTotalBuyingPriceTextField, historyTotalMarginTextField;
-//		JDateChooser historyFrom, historyTo;
-//		JLabel historyFromLabel, historyToLabel;
-//		JComboBox<Integer> historycounterNumberComboBox;
-//		JButton historySearch;
 		
 		
 		historyTimePeriodLabel = new JLabel("Time Period");
@@ -475,14 +706,131 @@ public class MainFrame extends JFrame{
 		historyPanel.add(historycounterNumberComboBox);
 		
 		
+		historyDetailsPanel = new JPanel();
+		historyDetailsPanel.setBackground(Color.gray);
+		historyDetailsPanel.setBounds(10, 100, 1060, 625);
+		historyDetailsPanel.setLayout(null);
+		historyPanel.add(historyDetailsPanel);
+		
+		
+		// history details panel
+		
+		historyTotalItemsLabel = new JLabel("Total Items");
+		historyTotalItemsLabel.setFont(my_font);
+		historyTotalItemsLabel.setBounds(20, 20, 170, 30);
+		historyTotalItemsLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalItemsLabel);
+		
+		
+		historyTotalItemsTextField = new JTextField();
+		historyTotalItemsTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalItemsTextField.setBounds(20,60,200,30);
+		historyTotalItemsTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalItemsTextField);
+		
+		
+		historyTotalQuantityLabel = new JLabel("Total Quantity");
+		historyTotalQuantityLabel.setFont(my_font);
+		historyTotalQuantityLabel.setBounds(320,20, 170, 30);
+		historyTotalQuantityLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalQuantityLabel);
+		
+		
+		historyTotalQuantityTextField = new JTextField();
+		historyTotalQuantityTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalQuantityTextField.setBounds(320,60,200,30);
+		historyTotalQuantityTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalQuantityTextField);
+		
+		
+		historyTotalDiscountLabel = new JLabel("Total Discount");
+		historyTotalDiscountLabel.setFont(my_font);
+		historyTotalDiscountLabel.setBounds(620,20, 170, 30);
+		historyTotalDiscountLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalDiscountLabel);
+		
+		
+		historyTotalDiscountTextField = new JTextField();
+		historyTotalDiscountTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalDiscountTextField.setBounds(620,60,200,30);
+		historyTotalDiscountTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalDiscountTextField);
+		
+		
+		historyTotalMRPLabel = new JLabel("Total MRP");
+		historyTotalMRPLabel.setFont(my_font);
+		historyTotalMRPLabel.setBounds(20,120, 170, 30);
+		historyTotalMRPLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalMRPLabel);
+		
+		
+		historyTotalMRPTextField = new JTextField();
+		historyTotalMRPTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalMRPTextField.setBounds(20,160,200,30);
+		historyTotalMRPTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalMRPTextField);
+		
+		historyTotalBuyingPriceLabel = new JLabel("Total TP");
+		historyTotalBuyingPriceLabel.setFont(my_font);
+		historyTotalBuyingPriceLabel.setBounds(320,120, 170, 30);
+		historyTotalBuyingPriceLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalBuyingPriceLabel);
+		
+		
+		historyTotalBuyingPriceTextField = new JTextField();
+		historyTotalBuyingPriceTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalBuyingPriceTextField.setBounds(320,160,200,30);
+		historyTotalBuyingPriceTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalBuyingPriceTextField);
+		
+		
+		historyTotalMarginLabel = new JLabel("Total Margin");
+		historyTotalMarginLabel.setFont(my_font);
+		historyTotalMarginLabel.setBounds(620,120, 170, 30);
+		historyTotalMarginLabel.setForeground(Color.black);
+		historyDetailsPanel.add(historyTotalMarginLabel);
+		
+		
+		historyTotalMarginTextField = new JTextField();
+		historyTotalMarginTextField.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		historyTotalMarginTextField.setBounds(620,160,200,30);
+		historyTotalMarginTextField.setBackground(Color.white);
+		historyDetailsPanel.add(historyTotalMarginTextField);
+		
+		
+		
+		
+		
+		
 		managementPane.add("History",historyPanel);
 		
-		// Orders Tab
+		// // Orders Tab
 		ordersPanel = new JPanel();
 		ordersPanel.setBackground(Color.white);
 		ordersPanel.setLayout(null);
 		
 		ordersTable = new JTable(OrdersModel);
+		ordersTable.addMouseListener(new MouseAdapter() {
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int idx = ordersTable.getSelectedRow();
+				
+				String product = OrdersModel.getValueAt(idx, 1).toString();
+				String quantity = OrdersModel.getValueAt(idx, 2).toString();
+				String company = OrdersModel.getValueAt(idx, 3).toString();
+				
+				ordersProductNameTextfield.setText(product);
+				ordersQuantityTextfield.setText(quantity);
+				ordersProductCompanytTextfield.setText(company);
+				
+//				serialFromTF = s;
+//				nameFromTF = n;
+//				idFromTF = i;
+				
+			}
+			
+		});
 		JScrollPane ordersScrollPane = new JScrollPane(ordersTable);
 		ordersScrollPane.setBounds(10,10,1060,500);
 		ordersPanel.add(ordersScrollPane);
@@ -534,6 +882,31 @@ public class MainFrame extends JFrame{
 		ordersAddButton.setBounds(10,610,220,40);
 		ordersAddButton.setBackground(Color.gray);
 		ordersAddButton.setForeground(Color.white);
+		ordersAddButton.addActionListener(new ActionListener() {
+			
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String productName = ordersProductNameTextfield.getText();
+				String quantity = ordersQuantityTextfield.getText();
+				String companyName = ordersProductCompanytTextfield.getText();
+				int serial = OrdersModel.getRowCount() + 1;
+				
+				if(productName.equals("") || quantity.equals("") || companyName.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter data in all the fields.");
+					return;
+				}
+				
+				Object newRow[] = {serial,productName,companyName,quantity};
+				
+				OrdersModel.addRow(newRow);
+				
+				ordersProductNameTextfield.setText("");
+				ordersQuantityTextfield.setText("");
+				ordersProductCompanytTextfield.setText("");
+			}
+			
+		});
 		ordersPanel.add(ordersAddButton);
  
  
@@ -543,6 +916,29 @@ public class MainFrame extends JFrame{
 		ordersDeleteButton.setBounds(290,610,220,40);
 		ordersDeleteButton.setBackground(Color.gray);
 		ordersDeleteButton.setForeground(Color.white);
+		ordersDeleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					int serial = OrdersModel.getRowCount();
+					int idx = ordersTable.getSelectedRow();
+					OrdersModel.removeRow(ordersTable.getSelectedRow());
+					
+					for(int i=1;i<serial;i++) {
+						OrdersModel.setValueAt(i, i-1, 0);
+					}
+					ordersProductNameTextfield.setText("");
+					ordersQuantityTextfield.setText("");
+					ordersProductCompanytTextfield.setText("");
+				} catch(Exception e1) {
+					if(OrdersModel.getRowCount()==0)
+						JOptionPane.showMessageDialog(null, "No data found!");
+					else 
+						JOptionPane.showMessageDialog(null, "Please select a row!");
+				}
+			}
+		});
 		ordersPanel.add(ordersDeleteButton);
  
  
@@ -561,6 +957,23 @@ public class MainFrame extends JFrame{
 		ordersPrintButton.setBounds(830,610,240,40);
 		ordersPrintButton.setBackground(Color.gray);
 		ordersPrintButton.setForeground(Color.white);
+		ordersPrintButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(OrdersModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+				MessageFormat header = new MessageFormat("Order list");
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					ordersTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
 		ordersPanel.add(ordersPrintButton);
 		
 		ordersClearButton = new JButton("Clear");
@@ -569,6 +982,19 @@ public class MainFrame extends JFrame{
 		ordersClearButton.setBounds(420,680,220,40);
 		ordersClearButton.setBackground(Color.gray);
 		ordersClearButton.setForeground(Color.white);
+		ordersClearButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				while(OrdersModel.getRowCount()!=0) {
+					OrdersModel.removeRow(0);
+				}
+				ordersProductNameTextfield.setText("");
+				ordersQuantityTextfield.setText("");
+				ordersProductCompanytTextfield.setText("");
+			}
+			
+		});
 		ordersPanel.add(ordersClearButton);
 		
 		
