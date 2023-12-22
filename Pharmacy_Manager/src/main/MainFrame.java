@@ -3,15 +3,16 @@ package main;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 
 import javax.swing.*;
 import javax.swing.table.*;
 
 import com.toedter.calendar.JDateChooser;
+import java.sql.*;
 
 public class MainFrame extends JFrame{
+	
 	
 	JTabbedPane managementPane;
 	Font my_font = new Font("Times New Roman", Font.PLAIN, 20);
@@ -59,22 +60,30 @@ public class MainFrame extends JFrame{
 	JLabel ordersProductName,ordersQuantity,ordersProductCompany;
 	JTextField ordersQuantityTextfield,ordersProductCompanytTextfield,ordersProductNameTextfield;
 	JTable ordersTable;
-	JButton ordersAddButton,ordersDeleteButton,ordersClearButton,ordersSaveButton,ordersPrintButton;
+	JButton ordersAddButton,ordersDeleteButton,ordersClearButton,ordersSaveButton,ordersPrintButton,ordersUpdateButton;
 	Object ordersData[][] = {};
 	String ordersColumnNames[] = {"Serial","Names","Company","Quantity"};
 	DefaultTableModel OrdersModel = new DefaultTableModel(ordersData,ordersColumnNames);
 	
-	
+
+	Connection con;
+	Statement st;
+	PreparedStatement pst;
+	ResultSet rs;
 	
 	public MainFrame(){
 		
-//		try {
-//			File my_style = new File("Fonts/Inter-regular.ttf");
-//			my_font = Font.createFont(Font.TRUETYPE_FONT, my_style).deriveFont(30f);
-//		} catch(Exception e) {
-//			e.printStackTrace();
-//		}
-//		
+		try{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost/pharmacy_manager","root","");
+			st = con.createStatement();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		
 		getContentPane().setBackground(Color.white);
 		setSize(1100,800);
 		setLocationRelativeTo(null);
@@ -534,7 +543,7 @@ public class MainFrame extends JFrame{
 		stockPrintButton.setFont(my_font);
 		stockPrintButton.setFocusable(false);
 		stockPrintButton.setBounds(30,600,130,40);
-		stockPrintButton.setBackground(Color.darkGray);
+		stockPrintButton.setBackground(Color.gray);
 		stockPrintButton.setForeground(Color.white);
 		stockPrintButton.addActionListener(new ActionListener() {
 			
@@ -560,7 +569,7 @@ public class MainFrame extends JFrame{
 		stockAddButton.setFont(my_font);
 		stockAddButton.setFocusable(false);
 		stockAddButton.setBounds(180,600,130,40);
-		stockAddButton.setBackground(Color.darkGray);
+		stockAddButton.setBackground(Color.gray);
 		stockAddButton.setForeground(Color.white);
 		stockAddButton.addActionListener(new ActionListener() {
 			
@@ -597,7 +606,7 @@ public class MainFrame extends JFrame{
 		stockDeleteButton.setFont(my_font);
 		stockDeleteButton.setFocusable(false);
 		stockDeleteButton.setBounds(330,600,130,40);
-		stockDeleteButton.setBackground(Color.darkGray);
+		stockDeleteButton.setBackground(Color.gray);
 		stockDeleteButton.setForeground(Color.white);
 		stockDeleteButton.addActionListener(new ActionListener() {
 			
@@ -627,7 +636,7 @@ public class MainFrame extends JFrame{
 		stockUpdateButton.setFont(my_font);
 		stockUpdateButton.setFocusable(false);
 		stockUpdateButton.setBounds(480,600,130,40);
-		stockUpdateButton.setBackground(Color.darkGray);
+		stockUpdateButton.setBackground(Color.gray);
 		stockUpdateButton.setForeground(Color.white);
 		stockUpdateButton.addActionListener(new ActionListener() {
 			
@@ -655,7 +664,7 @@ public class MainFrame extends JFrame{
 		stockSearchButton.setFont(my_font);
 		stockSearchButton.setFocusable(false);
 		stockSearchButton.setBounds(630,600,130,40);
-		stockSearchButton.setBackground(Color.darkGray);
+		stockSearchButton.setBackground(Color.gray);
 		stockSearchButton.setForeground(Color.white);
 		stockPanel.add(stockSearchButton);
 		
@@ -976,24 +985,63 @@ public class MainFrame extends JFrame{
 		});
 		ordersPanel.add(ordersPrintButton);
 		
+		ordersUpdateButton = new JButton("Update");
+		ordersUpdateButton.setFont(my_font);
+		ordersUpdateButton.setFocusable(false);
+		ordersUpdateButton.setBounds(290,680,220,40);
+		ordersUpdateButton.setBackground(Color.gray);
+		ordersUpdateButton.setForeground(Color.white);
+		ordersUpdateButton.addActionListener(new ActionListener() {
+ 
+			@Override
+			public void actionPerformed(ActionEvent e) {
+ 
+				if(OrdersModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+ 
+				try {
+ 
+					String name = ordersProductNameTextfield.getText();
+					String company = ordersProductCompanytTextfield.getText();
+					String quantity = ordersQuantityTextfield.getText();
+					int idx = ordersTable.getSelectedRow();
+ 
+					OrdersModel.setValueAt(name, idx, 1);
+					OrdersModel.setValueAt(company, idx, 2);
+					OrdersModel.setValueAt(quantity, idx, 3);
+					
+					ordersProductNameTextfield.setText("");
+					ordersProductCompanytTextfield.setText("");
+					ordersQuantityTextfield.setText("");
+					
+				}catch(Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		ordersPanel.add(ordersUpdateButton);
+ 
+ 
 		ordersClearButton = new JButton("Clear");
 		ordersClearButton.setFont(my_font);
 		ordersClearButton.setFocusable(false);
-		ordersClearButton.setBounds(420,680,220,40);
+		ordersClearButton.setBounds(560,680,220,40);
 		ordersClearButton.setBackground(Color.gray);
 		ordersClearButton.setForeground(Color.white);
 		ordersClearButton.addActionListener(new ActionListener() {
-			
+ 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				while(OrdersModel.getRowCount()!=0) {
 					OrdersModel.removeRow(0);
 				}
+				
 				ordersProductNameTextfield.setText("");
-				ordersQuantityTextfield.setText("");
 				ordersProductCompanytTextfield.setText("");
+				ordersQuantityTextfield.setText("");
 			}
-			
 		});
 		ordersPanel.add(ordersClearButton);
 		

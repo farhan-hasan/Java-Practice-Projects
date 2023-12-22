@@ -6,7 +6,7 @@ public class Main {
 		
 		//new New_Stuff();
 		//new ScrollableJTableExample();
-		new Table();
+		new Register();
 
 	}
 
