@@ -31,6 +31,8 @@ public class MainFrame extends JFrame{
 	
 	// My Projects variables
 	
+	String editTeamObj[] = {"","","","","",""};
+	
 	JButton myProjectsSearchButton, myProjectsDeleteAllButton, myProjectsExpandButton, myProjectsNewSessionButton;
 	JButton myProjectsSessionHistoryButton, myProjectsEditTeamButton, myProjectsDeleteTeamButton;
 	
@@ -74,6 +76,8 @@ public class MainFrame extends JFrame{
 	String loginUserName;
 	
 	public MainFrame(String username) {
+		
+		editTeamObj[5] = username;
 		
 		prevTeamName = "";
 		prevProjectName = "";
@@ -146,6 +150,16 @@ public class MainFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String semester = myProjectsSemesterTextField.getText();
+				
+				editTeamObj[4] = semester;
+				
+				int	courseLen = myProjectsCourseTable.getRowCount();
+				
+				if (courseLen > 0) {
+				    for (int i = courseLen - 1; i > -1; i--) {
+				    	myProjectsCourseTableModel.removeRow(i);
+				    }
+				}
 
 				
 				try {
@@ -227,6 +241,8 @@ public class MainFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int idx = myProjectsCourseTable.getSelectedRow();
+				
+				
 				
 				int teamLen = myProjectsTeamTable.getRowCount();
 				
@@ -322,7 +338,21 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new EditTeamFrame();
+				
+				int idx = myProjectsTeamTable.getSelectedRow();
+				
+				String projectName = myProjectsTeamTableModel.getValueAt(idx, 0).toString();
+				String teamName = myProjectsTeamTableModel.getValueAt(idx, 1).toString();
+				String courseCode = myProjectsTeamTableModel.getValueAt(idx, 2).toString();
+				String courseName = myProjectsTeamTableModel.getValueAt(idx, 3).toString();
+				
+				editTeamObj[0] = projectName;
+				editTeamObj[1] = teamName;
+				editTeamObj[2] = courseCode;
+				editTeamObj[3] = courseName;
+				//editTeamObj[4] on searh button and editTeamObj[5] at the beginning
+				
+				new EditTeamFrame(editTeamObj);
 				
 			}
 		});
@@ -549,7 +579,7 @@ public class MainFrame extends JFrame{
 				try {
 					
 					// // Course Code and Name check
-					String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) and lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+					String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) or lower(trim(course_name)) = lower(trim('"+courseName+"'))";
 					ResultSet rs2 = st.executeQuery(searchCourseSql);
 					
 					int cnt2 = 0;
@@ -557,25 +587,28 @@ public class MainFrame extends JFrame{
 					while(rs2.next()) {
 						existingCourseCode = rs2.getString(1);
 						existingCourseName = rs2.getString(2);
-						cnt2++;
-					}
-					
-					if (!courseName.equals("") && !courseCode.equals("")) {
 						if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
-							JOptionPane.showMessageDialog(null, "Incorrect Course code or Course name");
+							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
 						if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
-							JOptionPane.showMessageDialog(null, "Incorrect Course code or Course name");
+							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
+						cnt2++;
 					}
+					
+					
 					
 					
 					// // Checking if team and project already exists
 					if(!prevTeamName.equals(teamName) || !prevProjectName.equals(projectName) || !prevCourseCode.equals(courseCode)) {
-						String searchSql1 = "SELECT `course_code`, `project_name`, `team_name` FROM `projects` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) and lower(trim(team_name)) = lower(trim('"+teamName+"'))";
-						String searchSql3 = "SELECT `course_code`, `project_name`, `team_name` FROM `projects` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) and lower(trim(project_name)) = lower(trim('"+projectName+"'))";
+						String searchSql1 = "SELECT `course_code`, `project_name`, `team_name` FROM `projects` WHERE "
+								+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+								+ "lower(trim(team_name)) = lower(trim('"+teamName+"'))";
+						String searchSql3 = "SELECT `course_code`, `project_name`, `team_name` FROM `projects` WHERE "
+								+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+								+ "lower(trim(project_name)) = lower(trim('"+projectName+"'))";
 //						
 						
 						int cnt1 = 0, cnt3 = 0;
@@ -600,22 +633,34 @@ public class MainFrame extends JFrame{
 					prevTeamName = teamName;
 					prevCourseCode = courseCode;
 					
-					String insertCourseSql = "INSERT INTO `course`(`course_code`, `course_name`) VALUES ('"+courseCode+"','"+courseName+"')";
+					String insertCourseSql = "INSERT INTO `course`(`course_code`, `course_name`) VALUES "
+							+ "('"+courseCode+"','"+courseName+"')";
 					if(cnt2==0)st.executeUpdate(insertCourseSql);
 					
-					String deleteFromTeamMembersSql = "DELETE FROM `team_members` where team_name='"+teamName+"' and course_code='"+courseCode+"'";
+					String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"'))";
 					st.executeUpdate(deleteFromTeamMembersSql);
 					
-					String deleteFromProjectSql = "DELETE FROM `projects` where team_name='"+teamName+"' and course_code='"+courseCode+"'";
+					String deleteFromProjectSql = "DELETE FROM `projects` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"')) and "
+							+ "lower(trim(project_name))=lower(trim('"+projectName+"'))";
 					st.executeUpdate(deleteFromProjectSql);
 					
-					String insertProjectSql = "INSERT INTO `projects`(`course_code`, `course_name`, `project_name`, `team_name`, `semester`, `username`) VALUES ('"+courseCode+"','"+courseName+"','"+projectName+"','"+teamName+"','"+semester+"','"+loginUserName+"')";
+					String insertProjectSql = "INSERT INTO `projects`(`course_code`, `course_name`, `project_name`, `team_name`, `semester`, `username`) VALUES "
+							+ "('"+courseCode+"','"+courseName+"','"+projectName+"','"+teamName+"','"+semester+"','"+loginUserName+"')";
 					st.executeUpdate(insertProjectSql);
 					
 					for(int i=0;i<len;i++) {
 						String studentId = newProjectStudentTableModel.getValueAt(i, 0).toString();
 						String studentName = newProjectStudentTableModel.getValueAt(i, 1).toString();
-						String insertMembersSql = "INSERT INTO `team_members`(`team_name`, `course_code`, `student_id`, `student_name`, `username`) VALUES ('"+teamName+"','"+courseCode+"','"+studentId+"','"+studentName+"','"+loginUserName+"')";
+						String insertMembersSql = "INSERT INTO `team_members`(`team_name`, `course_code`, `student_id`, `student_name`, `username`, `semester`) VALUES "
+								+ "('"+teamName+"','"+courseCode+"','"+studentId+"','"+studentName+"','"+loginUserName+"','"+semester+"')";
 						st.executeUpdate(insertMembersSql);
 						
 						System.out.println(studentId);
