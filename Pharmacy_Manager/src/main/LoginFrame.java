@@ -22,6 +22,8 @@ public class LoginFrame extends JFrame {
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setTitle("Pharmacy Management System");
+		
+		
  
 		Font my_font = new Font("Times New Roman", Font.PLAIN,20);
  
@@ -62,6 +64,7 @@ public class LoginFrame extends JFrame {
 		loginEmailTextField.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		loginEmailTextField.setBounds(180, 80,220,30);
 		loginEmailTextField.setBackground(Color.white);
+		//loginEmailTextField.setText(a);
 		loginBodyPanel.add(loginEmailTextField);
  
 		loginPasswordLabel = new JLabel("Password  ");
@@ -75,6 +78,7 @@ public class LoginFrame extends JFrame {
 		loginPasswordTextField.setFont(new Font("Times New Roman", Font.PLAIN, 20));
 		loginPasswordTextField.setBounds(180, 140,220,30);
 		loginPasswordTextField.setBackground(Color.white);
+		//loginPasswordTextField.setText(b);
 		loginBodyPanel.add(loginPasswordTextField);
  
 		loginButton = new JButton("Login");

@@ -25,7 +25,7 @@ public class RegisterFrame extends JFrame {
 		
 		setSize(450,680);
 		setDefaultCloseOperation(3);
-		setResizable(true);
+		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setTitle("Pharmacy Management System");
