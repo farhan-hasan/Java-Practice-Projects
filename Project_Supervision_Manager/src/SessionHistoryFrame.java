@@ -5,6 +5,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -27,11 +32,15 @@ public class SessionHistoryFrame extends JFrame{
 	
 	JDateChooser dateFrom, dateTo;
 	
-	JLabel dateFromLabel, dateToLabel, attendanceLabel, performanceLabel, taskSubmissionLabel, teamWorkLabel;
+	JLabel searchLabel, dateFromLabel, dateToLabel, attendanceLabel, performanceLabel, taskSubmissionLabel, teamWorkLabel;
 	
 	JTextField dateTextField, attendanceTextField, performanceTextField, taskSubmissionTextField, teamWorkTextField;
 	
-	JButton addButton, updateButton, deleteButton, saveButton, printButton, doneButton;
+	JLabel projectNameLabel, teamNameLabel, courseNameLabel;
+	
+	JTextField projectNameTextField, teamNameTextField, courseNameTextField;
+	
+	JButton searchButton, addButton, updateButton, deleteButton, saveButton, printButton, doneButton;
 	
 	JTable studentTable;
 	JScrollPane studentTableScrollPane;
@@ -39,7 +48,57 @@ public class SessionHistoryFrame extends JFrame{
 	String studentTableColumns[] = {"Date","Student ID","Student Name", "Attendance", "Performance", "Team Work", "Task Submission"};
 	DefaultTableModel studentTableModel = new DefaultTableModel(studentTableData,studentTableColumns);
 	
-	public SessionHistoryFrame() {
+	
+	String parentProjectName, parentTeamName, parentCourseCode, parentCourseName, parentSemester, loginUserName;
+	
+	Statement st;
+	Connection con;
+	
+	LocalDate localDate = LocalDate.now();
+	
+	
+	public SessionHistoryFrame(String[] data) {
+		
+		parentProjectName = data[0];
+		parentTeamName = data[1];
+		parentCourseCode = data[2];
+		parentCourseName = data[3];
+		parentSemester = data[4];
+		loginUserName = data[5];
+		
+		try {
+			
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost/teacher_companion","root","");
+			st =  con.createStatement();	
+			
+			String searchSql = "SELECT * FROM `session_history` WHERE "
+					+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+					+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+					+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+					+ "lower(trim(semester)) = lower(trim('"+parentSemester+"'))";
+			
+			ResultSet rs = st.executeQuery(searchSql);
+			
+			while(rs.next()) {
+				String date = rs.getString(11);
+				String studentId = rs.getString(1);
+				String studentName = rs.getString(2);
+				String attendance = rs.getString(3);
+				String performance = rs.getString(4);
+				String teamwork = rs.getString(5);
+				String taskSubmission = rs.getString(6);
+				Object newRow[] = {date, studentId, studentName, attendance, performance, teamwork, taskSubmission};
+				studentTableModel.addRow(newRow);
+			}
+			
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		getContentPane().setBackground(lightColor);
 		setSize(1024,520);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -67,18 +126,10 @@ public class SessionHistoryFrame extends JFrame{
 		
 		dateFrom = new JDateChooser();
 		dateFrom.setBounds(20,70,180,25);
+		dateFrom.setDate((Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 		JTextFieldDateEditor editorFrom = (JTextFieldDateEditor) dateFrom.getDateEditor();
 		editorFrom.setEditable(false);
 		add(dateFrom);
-		
-		// printing date as string
-//		LocalDate localDate = LocalDate.now();
-//		Date DOB = (Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//		date.setDate(DOB);
-//		
-//		DOB = (Date) date.getDate();
-//		String dateStr = DateFormat.getDateInstance().format(DOB);
-//		System.out.println(dateStr);
 		
 		dateToLabel = new JLabel("To");
 		dateToLabel.setFont(labelFont);
@@ -88,18 +139,93 @@ public class SessionHistoryFrame extends JFrame{
 		
 		dateTo = new JDateChooser();
 		dateTo.setBounds(215,70,180,25);
+		dateTo.setDate((Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
 		JTextFieldDateEditor editorTo = (JTextFieldDateEditor) dateTo.getDateEditor();
 		editorTo.setEditable(false);
 		add(dateTo);
 		
-		// printing date as string
-//		LocalDate localDate = LocalDate.now();
-//		Date DOB = (Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//		date.setDate(DOB);
-//		
-//		DOB = (Date) date.getDate();
-//		String dateStr = DateFormat.getDateInstance().format(DOB);
-//		System.out.println(dateStr);
+		
+		searchButton = new JButton("Search");
+		searchButton.setFont(buttonFont);
+		searchButton.setBounds(410,70,180,25);
+		searchButton.setForeground(Color.white);
+		searchButton.setFocusable(false);
+		searchButton.setBackground(darkColor);
+		searchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Date fromDate = (Date) dateFrom.getDate();
+				Date toDate = (Date) dateTo.getDate();
+				String from = DateFormat.getDateInstance().format(fromDate);
+				String to = DateFormat.getDateInstance().format(toDate);
+				
+				int len = studentTable.getRowCount();
+				
+				if (len > 0) {
+				    for (int i = len - 1; i > -1; i--) {
+				    	studentTableModel.removeRow(i);
+				    }
+				}
+				
+				try {
+					
+					String searchSql = "SELECT * FROM `session_history` WHERE "
+							+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+							+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester)) = lower(trim('"+parentSemester+"')) and "
+							+ "(lower(trim(date)) between lower(trim('"+from+"')) and lower(trim('"+to+"')))";
+					ResultSet rs = st.executeQuery(searchSql);
+					
+					while(rs.next()) {
+						String date = rs.getString(11);
+						String studentId = rs.getString(1);
+						String studentName = rs.getString(2);
+						String attendance = rs.getString(3);
+						String performance = rs.getString(4);
+						String teamwork = rs.getString(5);
+						String taskSubmission = rs.getString(6);
+						Object newRow[] = {date, studentId, studentName, attendance, performance, teamwork, taskSubmission};
+						studentTableModel.addRow(newRow);
+					}
+					
+					
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		add(searchButton);
+		
+		projectNameLabel = new JLabel("Project Name");
+		projectNameLabel.setFont(labelFont);
+		projectNameLabel.setBounds(605,20,280,70);
+		projectNameLabel.setForeground(Color.black);
+		add(projectNameLabel);
+		
+		projectNameTextField = new JTextField();
+		projectNameTextField.setFont(textFieldFont);
+		projectNameTextField.setBounds(605,70,180,25);
+		projectNameTextField.setBackground(Color.white);
+		projectNameTextField.setText(parentTeamName);
+		projectNameTextField.setEditable(false);
+		add(projectNameTextField);
+		
+		teamNameLabel = new JLabel("Team Name");
+		teamNameLabel.setFont(labelFont);
+		teamNameLabel.setBounds(800,20,280,70);
+		teamNameLabel.setForeground(Color.black);
+		add(teamNameLabel);
+		
+		teamNameTextField = new JTextField();
+		teamNameTextField.setFont(textFieldFont);
+		teamNameTextField.setBounds(800,70,180,25);
+		teamNameTextField.setBackground(Color.white);
+		teamNameTextField.setText(parentCourseName);
+		teamNameTextField.setEditable(false);
+		add(teamNameTextField);
 		
 		studentTable = new JTable(studentTableModel);
 		studentTable.setOpaque(true);
@@ -116,6 +242,27 @@ public class SessionHistoryFrame extends JFrame{
 			public void mouseClicked(MouseEvent e) {
 				int idx = studentTable.getSelectedRow();
 				
+				
+				String attendance = "NULL";
+				String performance = "NULL";
+				String teamWork = "NULL";
+				String taskSubmission = "NULL";
+				
+				Object attendanceObj = studentTableModel.getValueAt(idx, 3);
+				Object performanceObj = studentTableModel.getValueAt(idx, 4);
+				Object teamworkObj = studentTableModel.getValueAt(idx, 5);
+				Object taskSubmissionObj = studentTableModel.getValueAt(idx, 6);
+				
+				if(attendanceObj!=null)attendance = attendanceObj.toString();
+				if(performanceObj!=null)performance = performanceObj.toString();
+				if(teamworkObj!=null)teamWork = teamworkObj.toString();
+				if(taskSubmissionObj!=null)taskSubmission = taskSubmissionObj.toString();
+				
+				
+				attendanceTextField.setText(attendance);
+				performanceTextField.setText(performance);
+				teamWorkTextField.setText(teamWork);
+				taskSubmissionTextField.setText(taskSubmission);
 				
 			}
 		});
@@ -183,15 +330,24 @@ public class SessionHistoryFrame extends JFrame{
 		updateButton.setForeground(Color.white);
 		updateButton.setFocusable(false);
 		updateButton.setBackground(darkColor);
+		updateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String attendance = attendanceTextField.getText();
+				String performance = performanceTextField.getText();
+				String teamWork = teamWorkTextField.getText();
+				String taskSubmission = taskSubmissionTextField.getText();
+				int idx = studentTable.getSelectedRow();
+				
+				studentTableModel.setValueAt(attendance, idx, 3);
+				studentTableModel.setValueAt(performance, idx, 4);
+				studentTableModel.setValueAt(teamWork, idx, 5);
+				studentTableModel.setValueAt(taskSubmission, idx, 6);
+				
+			}
+		});
 		add(updateButton);
-		
-//		deleteButton = new JButton("Delete");
-//		deleteButton.setFont(buttonFont);
-//		deleteButton.setBounds(410,420,180,25);
-//		deleteButton.setForeground(Color.white);
-//		deleteButton.setFocusable(false);
-//		deleteButton.setBackground(darkColor);
-//		add(deleteButton);
 		
 		saveButton = new JButton("Save");
 		saveButton.setFont(buttonFont);
@@ -199,6 +355,63 @@ public class SessionHistoryFrame extends JFrame{
 		saveButton.setForeground(Color.white);
 		saveButton.setFocusable(false);
 		saveButton.setBackground(darkColor);
+		saveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = studentTable.getSelectedRow();
+				String sessionDate = studentTableModel.getValueAt(idx, 0).toString();
+				
+				int len = studentTable.getRowCount();
+				try {
+				for(int i=0;i<len;i++) {
+					String studentId = "NULL";
+					String studentName = "NULL";
+					String attendance = "NULL";
+					String performance = "NULL";
+					String teamwork = "NULL";
+					String taskSubmission = "NULL";
+					
+					Object studentIdObj = studentTableModel.getValueAt(i, 1);
+					Object studentNameObj = studentTableModel.getValueAt(i, 2);
+					Object attendanceObj = studentTableModel.getValueAt(i, 3);
+					Object performanceObj = studentTableModel.getValueAt(i, 4);
+					Object teamworkObj = studentTableModel.getValueAt(i, 5);
+					Object taskSubmissionObj = studentTableModel.getValueAt(i, 6);
+					
+					if(studentIdObj!=null)studentId = studentIdObj.toString();
+					if(studentNameObj!=null)studentName = studentNameObj.toString();
+					if(attendanceObj!=null)attendance = attendanceObj.toString();
+					if(performanceObj!=null)performance = performanceObj.toString();
+					if(teamworkObj!=null)teamwork = teamworkObj.toString();
+					if(taskSubmissionObj!=null)taskSubmission = taskSubmissionObj.toString();
+					
+					
+					System.out.println("Check Update");
+					String UpdateSql = "UPDATE `session_history` SET "
+							+ "attendance = '"+attendance+"',"
+							+ "performance = '"+performance+"',"
+							+ "team_work = '"+teamwork+"',"
+							+ "task_submission = '"+taskSubmission+"' WHERE "
+							+ "lower(trim(student_id)) = lower(trim('"+studentId+"')) and "
+							+ "lower(trim(student_name)) = lower(trim('"+studentName+"')) and "
+							+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+							+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester)) = lower(trim('"+parentSemester+"')) and "
+							+ "lower(trim(date)) = lower(trim('"+sessionDate+"'))";
+					st.executeUpdate(UpdateSql);
+					
+					
+				}
+				
+				} catch (SQLException e1) {
+					
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		add(saveButton);
 		
 		doneButton = new JButton("Done");
@@ -223,7 +436,7 @@ public class SessionHistoryFrame extends JFrame{
 		
 		printButton = new JButton("Print");
 		printButton.setFont(buttonFont);
-		printButton.setBounds(800,70,180,25);
+		printButton.setBounds(800,380,180,25);
 		printButton.setForeground(Color.white);
 		printButton.setFocusable(false);
 		printButton.setBackground(darkColor);

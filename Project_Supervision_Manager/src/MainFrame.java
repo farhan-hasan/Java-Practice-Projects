@@ -69,6 +69,7 @@ public class MainFrame extends JFrame{
 	DefaultTableModel newProjectStudentTableModel = new DefaultTableModel(newProjectStudentTableData,newProjectStudentTableColumns);
 	
 	String prevTeamName = "", prevProjectName = "", prevCourseName = "", prevCourseCode = "";
+	String expandedSemester = "";
 	
 	Connection con;
 	Statement st;
@@ -149,7 +150,15 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String semester = myProjectsSemesterTextField.getText();
+				
+				String semester = "";
+				
+				semester = myProjectsSemesterTextField.getText();
+				
+				if(semester.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter semester");
+					return;
+				}
 				
 				editTeamObj[4] = semester;
 				
@@ -240,7 +249,14 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int idx = myProjectsCourseTable.getSelectedRow();
+				int idx = -1;
+				
+				idx = myProjectsCourseTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a course");
+					return;
+				}
 				
 				
 				
@@ -254,12 +270,14 @@ public class MainFrame extends JFrame{
 				
 				String courseCode = myProjectsCourseTableModel.getValueAt(idx, 0).toString();
 				String courseName = myProjectsCourseTableModel.getValueAt(idx, 1).toString();
+				expandedSemester = myProjectsSemesterTextField.getText() ;
 				
 				try {
 					String searchSQL = "SELECT * FROM `projects` WHERE "
 							+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
 							+ "lower(trim(course_name)) = lower(trim('"+courseName+"')) and "
-							+ "lower(trim(username)) = lower(trim('"+loginUserName+"'))";
+							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"'))";
 					
 					ResultSet rs = st.executeQuery(searchSQL);
 					
@@ -307,7 +325,26 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new NewSessionFrame();
+				int idx = -1;
+				idx = myProjectsTeamTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				String projectName = myProjectsTeamTableModel.getValueAt(idx, 0).toString();
+				String teamName = myProjectsTeamTableModel.getValueAt(idx, 1).toString();
+				String courseCode = myProjectsTeamTableModel.getValueAt(idx, 2).toString();
+				String courseName = myProjectsTeamTableModel.getValueAt(idx, 3).toString();
+				
+				editTeamObj[0] = projectName;
+				editTeamObj[1] = teamName;
+				editTeamObj[2] = courseCode;
+				editTeamObj[3] = courseName;
+				//editTeamObj[4] on searh button and editTeamObj[5] at the beginning
+				
+				new NewSessionFrame(editTeamObj);
 			}
 		});
 		myProjectsPanel.add(myProjectsNewSessionButton);
@@ -322,7 +359,26 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new SessionHistoryFrame();
+				int idx = -1;
+				idx = myProjectsTeamTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				String projectName = myProjectsTeamTableModel.getValueAt(idx, 0).toString();
+				String teamName = myProjectsTeamTableModel.getValueAt(idx, 1).toString();
+				String courseCode = myProjectsTeamTableModel.getValueAt(idx, 2).toString();
+				String courseName = myProjectsTeamTableModel.getValueAt(idx, 3).toString();
+				
+				editTeamObj[0] = projectName;
+				editTeamObj[1] = teamName;
+				editTeamObj[2] = courseCode;
+				editTeamObj[3] = courseName;
+				//editTeamObj[4] on searh button and editTeamObj[5] at the beginning
+				
+				new SessionHistoryFrame(editTeamObj);
 				
 			}
 		});
@@ -339,7 +395,13 @@ public class MainFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				int idx = myProjectsTeamTable.getSelectedRow();
+				int idx = -1;
+				idx = myProjectsTeamTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
 				
 				String projectName = myProjectsTeamTableModel.getValueAt(idx, 0).toString();
 				String teamName = myProjectsTeamTableModel.getValueAt(idx, 1).toString();
@@ -364,6 +426,55 @@ public class MainFrame extends JFrame{
 		myProjectsDeleteTeamButton.setForeground(Color.white);
 		myProjectsDeleteTeamButton.setFocusable(false);
 		myProjectsDeleteTeamButton.setBackground(red);
+		myProjectsDeleteTeamButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = -1;
+				
+				
+				idx = myProjectsTeamTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the team?", "Delete Team?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+					return;
+				}
+				
+				String projectName = myProjectsTeamTableModel.getValueAt(idx, 0).toString();
+				String teamName = myProjectsTeamTableModel.getValueAt(idx, 1).toString();
+				String courseCode = myProjectsTeamTableModel.getValueAt(idx, 2).toString();
+				String courseName = myProjectsTeamTableModel.getValueAt(idx, 3).toString();
+				
+				
+				try {
+					String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"'))";
+					st.executeUpdate(deleteFromTeamMembersSql);
+					
+					String deleteFromProjectSql = "DELETE FROM `projects` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"')) and "
+							+ "lower(trim(project_name))=lower(trim('"+projectName+"'))";
+					st.executeUpdate(deleteFromProjectSql);
+					
+					
+					myProjectsTeamTableModel.removeRow(myProjectsTeamTable.getSelectedRow());
+				
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		myProjectsPanel.add(myProjectsDeleteTeamButton);
 		
 		
@@ -609,7 +720,7 @@ public class MainFrame extends JFrame{
 						String searchSql3 = "SELECT `course_code`, `project_name`, `team_name` FROM `projects` WHERE "
 								+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
 								+ "lower(trim(project_name)) = lower(trim('"+projectName+"'))";
-//						
+						
 						
 						int cnt1 = 0, cnt3 = 0;
 						ResultSet rs1 = st.executeQuery(searchSql1);
@@ -666,7 +777,10 @@ public class MainFrame extends JFrame{
 						System.out.println(studentId);
 						System.out.println(studentName);
 					}
-					System.out.println(len);
+					
+					
+					
+					
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}

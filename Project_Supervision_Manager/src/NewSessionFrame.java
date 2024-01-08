@@ -5,9 +5,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import java.text.DateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.*;
+import java.time.*;
 import java.util.Date;
 
 import javax.swing.*;
@@ -25,9 +30,13 @@ public class NewSessionFrame extends JFrame{
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font buttonFont = new Font("Times New Roman", Font.BOLD, 15);
 	
-	JDateChooser date;
+	JTextField date;
 	
 	JLabel dateLabel, attendanceLabel, performanceLabel, taskSubmissionLabel, teamWorkLabel;
+	
+	JLabel projectNameLabel, teamNameLabel, courseCodeLabel, courseNameLabel;
+	
+	JTextField projectNameTextField, teamNameTextField, courseCodeTextField, courseNameTextField;
 	
 	JTextField dateTextField, attendanceTextField, performanceTextField, taskSubmissionTextField, teamWorkTextField;
 	
@@ -39,7 +48,56 @@ public class NewSessionFrame extends JFrame{
 	String studentTableColumns[] = {"Student ID","Student Name", "Attendance", "Performance", "Team Work", "Task Submission"};
 	DefaultTableModel studentTableModel = new DefaultTableModel(studentTableData,studentTableColumns);
 	
-	public NewSessionFrame() {
+	String parentProjectName, parentTeamName, parentCourseCode, parentCourseName, parentSemester, loginUserName;
+	
+	Statement st;
+	Connection con;
+	
+	String dateStr;
+	
+	public NewSessionFrame(String[] data) {
+		
+		
+		parentProjectName = data[0];
+		parentTeamName = data[1];
+		parentCourseCode = data[2];
+		parentCourseName = data[3];
+		parentSemester = data[4];
+		loginUserName = data[5];
+		
+		
+		try {
+			
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost/teacher_companion","root","");
+			st =  con.createStatement();	
+			
+			String sql = "SELECT * FROM `team_members` WHERE "
+					+ "lower(trim(team_name)) = lower(trim('"+parentTeamName+"')) "
+					+ "and lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) "
+					+ "and lower(trim(username)) = lower(trim('"+loginUserName+"')) "
+					+ "and lower(trim(semester)) = lower(trim('"+parentSemester+"'))";
+			
+			ResultSet rs = st.executeQuery(sql);
+			
+			while(rs.next()) {
+				String studentId = rs.getString(3);
+				String studentName = rs.getString(4);
+				System.out.println(studentId);
+				System.out.println(studentName);
+				Object newRow[] = {studentId, studentName};
+				studentTableModel.addRow(newRow);
+			}
+			
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
 		getContentPane().setBackground(lightColor);
 		setSize(1024,520);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -65,20 +123,70 @@ public class NewSessionFrame extends JFrame{
 		dateLabel.setForeground(Color.black);
 		add(dateLabel);
 		
-		date = new JDateChooser();
+		LocalDate localDate = LocalDate.now();
+		Date DOB = (Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		date = new JTextField();
 		date.setBounds(20,70,180,25);
-		JTextFieldDateEditor editor = (JTextFieldDateEditor) date.getDateEditor();
-		editor.setEditable(false);
+		String dateString = DateFormat.getDateInstance().format(DOB);
+		date.setText(dateString);
+		date.setEditable(false);
 		add(date);
 		
-		// printing date as string
-//		LocalDate localDate = LocalDate.now();
-//		Date DOB = (Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-//		date.setDate(DOB);
-//		
-//		DOB = (Date) date.getDate();
-//		String dateStr = DateFormat.getDateInstance().format(DOB);
-//		System.out.println(dateStr);
+		projectNameLabel = new JLabel("Project Name");
+		projectNameLabel.setFont(labelFont);
+		projectNameLabel.setBounds(215,20,280,70);
+		projectNameLabel.setForeground(Color.black);
+		add(projectNameLabel);
+		
+		projectNameTextField = new JTextField();
+		projectNameTextField.setFont(textFieldFont);
+		projectNameTextField.setBounds(215,70,180,25);
+		projectNameTextField.setBackground(Color.white);
+		projectNameTextField.setText(parentProjectName);
+		projectNameTextField.setEditable(false);
+		add(projectNameTextField);
+		
+		teamNameLabel = new JLabel("Team Name");
+		teamNameLabel.setFont(labelFont);
+		teamNameLabel.setBounds(410,20,280,70);
+		teamNameLabel.setForeground(Color.black);
+		add(teamNameLabel);
+		
+		teamNameTextField = new JTextField();
+		teamNameTextField.setFont(textFieldFont);
+		teamNameTextField.setBounds(410,70,180,25);
+		teamNameTextField.setBackground(Color.white);
+		teamNameTextField.setText(parentTeamName);
+		teamNameTextField.setEditable(false);
+		add(teamNameTextField);
+		
+		courseCodeLabel = new JLabel("Course Code");
+		courseCodeLabel.setFont(labelFont);
+		courseCodeLabel.setBounds(605,20,280,70);
+		courseCodeLabel.setForeground(Color.black);
+		add(courseCodeLabel);
+		
+		courseCodeTextField = new JTextField();
+		courseCodeTextField.setFont(textFieldFont);
+		courseCodeTextField.setBounds(605,70,180,25);
+		courseCodeTextField.setBackground(Color.white);
+		courseCodeTextField.setText(parentCourseCode);
+		courseCodeTextField.setEditable(false);
+		add(courseCodeTextField);
+		
+		courseNameLabel = new JLabel("Course Name");
+		courseNameLabel.setFont(labelFont);
+		courseNameLabel.setBounds(800,20,280,70);
+		courseNameLabel.setForeground(Color.black);
+		add(courseNameLabel);
+		
+		courseNameTextField = new JTextField();
+		courseNameTextField.setFont(textFieldFont);
+		courseNameTextField.setBounds(800,70,180,25);
+		courseNameTextField.setBackground(Color.white);
+		courseNameTextField.setText(parentCourseName);
+		courseNameTextField.setEditable(false);
+		add(courseNameTextField);
 		
 		studentTable = new JTable(studentTableModel);
 		studentTable.setOpaque(true);
@@ -95,6 +203,27 @@ public class NewSessionFrame extends JFrame{
 			public void mouseClicked(MouseEvent e) {
 				int idx = studentTable.getSelectedRow();
 				
+				
+				String attendance = "NULL";
+				String performance = "NULL";
+				String teamWork = "NULL";
+				String taskSubmission = "NULL";
+				
+				Object attendanceObj = studentTableModel.getValueAt(idx, 2);
+				Object performanceObj = studentTableModel.getValueAt(idx, 3);
+				Object teamworkObj = studentTableModel.getValueAt(idx, 4);
+				Object taskSubmissionObj = studentTableModel.getValueAt(idx, 5);
+				
+				if(attendanceObj!=null)attendance = attendanceObj.toString();
+				if(performanceObj!=null)performance = performanceObj.toString();
+				if(teamworkObj!=null)teamWork = teamworkObj.toString();
+				if(taskSubmissionObj!=null)taskSubmission = taskSubmissionObj.toString();
+				
+				
+				attendanceTextField.setText(attendance);
+				performanceTextField.setText(performance);
+				teamWorkTextField.setText(teamWork);
+				taskSubmissionTextField.setText(taskSubmission);
 				
 			}
 		});
@@ -148,29 +277,29 @@ public class NewSessionFrame extends JFrame{
 		taskSubmissionTextField.setBackground(Color.white);
 		add(taskSubmissionTextField);
 		
-//		addButton = new JButton("Add");
-//		addButton.setFont(buttonFont);
-//		addButton.setBounds(20,420,180,25);
-//		addButton.setForeground(Color.white);
-//		addButton.setFocusable(false);
-//		addButton.setBackground(darkColor);
-//		add(addButton);
-		
 		updateButton = new JButton("Update");
 		updateButton.setFont(buttonFont);
 		updateButton.setBounds(20,420,180,25);
 		updateButton.setForeground(Color.white);
 		updateButton.setFocusable(false);
 		updateButton.setBackground(darkColor);
+		updateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String attendance = attendanceTextField.getText();
+				String performance = performanceTextField.getText();
+				String teamWork = teamWorkTextField.getText();
+				String taskSubmission = taskSubmissionTextField.getText();
+				int idx = studentTable.getSelectedRow();
+				
+				studentTableModel.setValueAt(attendance, idx, 2);
+				studentTableModel.setValueAt(performance, idx, 3);
+				studentTableModel.setValueAt(teamWork, idx, 4);
+				studentTableModel.setValueAt(taskSubmission, idx, 5);
+			}
+		});
 		add(updateButton);
-		
-//		deleteButton = new JButton("Delete");
-//		deleteButton.setFont(buttonFont);
-//		deleteButton.setBounds(410,420,180,25);
-//		deleteButton.setForeground(Color.white);
-//		deleteButton.setFocusable(false);
-//		deleteButton.setBackground(darkColor);
-//		add(deleteButton);
 		
 		saveButton = new JButton("Save");
 		saveButton.setFont(buttonFont);
@@ -178,6 +307,87 @@ public class NewSessionFrame extends JFrame{
 		saveButton.setForeground(Color.white);
 		saveButton.setFocusable(false);
 		saveButton.setBackground(darkColor);
+		saveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String sessionDate = date.getText();
+				
+				int len = studentTable.getRowCount();
+				try {
+				for(int i=0;i<len;i++) {
+					String studentId = "NULL";
+					String studentName = "NULL";
+					String attendance = "NULL";
+					String performance = "NULL";
+					String teamwork = "NULL";
+					String taskSubmission = "NULL";
+					
+					Object studentIdObj = studentTableModel.getValueAt(i, 0);
+					Object studentNameObj = studentTableModel.getValueAt(i, 1);
+					Object attendanceObj = studentTableModel.getValueAt(i, 2);
+					Object performanceObj = studentTableModel.getValueAt(i, 3);
+					Object teamworkObj = studentTableModel.getValueAt(i, 4);
+					Object taskSubmissionObj = studentTableModel.getValueAt(i, 5);
+					
+					if(studentIdObj!=null)studentId = studentIdObj.toString();
+					if(studentNameObj!=null)studentName = studentNameObj.toString();
+					if(attendanceObj!=null)attendance = attendanceObj.toString();
+					if(performanceObj!=null)performance = performanceObj.toString();
+					if(teamworkObj!=null)teamwork = teamworkObj.toString();
+					if(taskSubmissionObj!=null)taskSubmission = taskSubmissionObj.toString();
+					
+					
+					
+					String searchSql = "SELECT * FROM `session_history` WHERE "
+							+ "lower(trim(student_id)) = lower(trim('"+studentId+"')) and "
+							+ "lower(trim(student_name)) = lower(trim('"+studentName+"')) and "
+							+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+							+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester)) = lower(trim('"+parentSemester+"')) and "
+							+ "lower(trim(date)) = lower(trim('"+sessionDate+"'))";
+					ResultSet rs = st.executeQuery(searchSql);
+					
+					int searchCnt = 0;
+					while(rs.next())searchCnt++;
+					
+					
+					if(searchCnt==0) {
+						System.out.println("Check Insert");
+						String insertSql = "INSERT INTO `session_history`(`student_id`, `student_name`, `attendance`, `performance`, `team_work`, `task_submission`, `project_name`, `course_code`, `username`, `semester`, `date`) VALUES "
+								+ "('"+studentId+"','"+studentName+"','"+attendance+"','"+performance+"','"+teamwork+"','"+taskSubmission+"','"+parentProjectName+"','"+parentCourseCode+"','"+loginUserName+"','"+parentSemester+"','"+sessionDate+"')";
+						st.executeUpdate(insertSql);
+					}
+					else {
+						System.out.println("Check Update");
+						String UpdateSql = "UPDATE `session_history` SET "
+								+ "attendance = '"+attendance+"',"
+								+ "performance = '"+performance+"',"
+								+ "team_work = '"+teamwork+"',"
+								+ "task_submission = '"+taskSubmission+"' WHERE "
+								+ "lower(trim(student_id)) = lower(trim('"+studentId+"')) and "
+								+ "lower(trim(student_name)) = lower(trim('"+studentName+"')) and "
+								+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+								+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+								+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(semester)) = lower(trim('"+parentSemester+"')) and "
+								+ "lower(trim(date)) = lower(trim('"+sessionDate+"'))";
+						st.executeUpdate(UpdateSql);
+					}
+					
+//					System.out.println(studentId);
+//					System.out.println(studentName);
+				}
+				
+				} catch (SQLException e1) {
+					
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		add(saveButton);
 		
 		doneButton = new JButton("Done");
@@ -202,7 +412,7 @@ public class NewSessionFrame extends JFrame{
 		
 		printButton = new JButton("Print");
 		printButton.setFont(buttonFont);
-		printButton.setBounds(800,70,180,25);
+		printButton.setBounds(800,380,180,25);
 		printButton.setForeground(Color.white);
 		printButton.setFocusable(false);
 		printButton.setBackground(darkColor);

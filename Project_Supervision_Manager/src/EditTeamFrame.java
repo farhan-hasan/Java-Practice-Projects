@@ -332,12 +332,6 @@ public class EditTeamFrame extends JFrame{
 								+ "lower(trim(course_code))=lower(trim('"+courseCode+"'))and "
 								+ "lower(trim(course_name))=lower(trim('"+courseName+"'))and "
 								+ "lower(trim(team_name))=lower(trim('"+teamName+"'))and "
-								+ "lower(trim(semester))=lower(trim('"+semester+"'))and "
-								+ "lower(trim(username))=lower(trim('"+loginUserName+"'))";
-						
-						String searchProjectSql = "SELECT * FROM `projects` WHERE "
-								+ "lower(trim(course_code))=lower(trim('"+courseCode+"'))and "
-								+ "lower(trim(course_name))=lower(trim('"+courseName+"'))and "
 								+ "lower(trim(project_name))=lower(trim('"+projectName+"'))and "
 								+ "lower(trim(semester))=lower(trim('"+semester+"'))and "
 								+ "lower(trim(username))=lower(trim('"+loginUserName+"'))";
@@ -346,17 +340,12 @@ public class EditTeamFrame extends JFrame{
 						int cntTeam=0, cntProject=0;
 						ResultSet rsTeam = st.executeQuery(searchTeamSql);
 						while(rsTeam.next())cntTeam++;
-						ResultSet rsProject = st.executeQuery(searchProjectSql);
-						while(rsProject.next())cntProject++;
 						
 						if(cntTeam==0) {
 							JOptionPane.showMessageDialog(null, "Team Doesn't exists");
 							return;
 						}
-						if(cntProject==0) {
-							JOptionPane.showMessageDialog(null, "Project Doesn't exists");
-							return;
-						}
+				
 					}
 					
 					// // Course code and name validation
@@ -383,9 +372,6 @@ public class EditTeamFrame extends JFrame{
 							cntCourse++;
 						}
 						
-//						String insertCourseSql = "INSERT INTO `course`(`course_code`, `course_name`) VALUES "
-//								+ "('"+courseCode+"','"+courseName+"')";
-//						if(cntCourse==0)st.executeUpdate(insertCourseSql);
 					}
 					
 					System.out.println(teamProjectChanged);
@@ -399,12 +385,6 @@ public class EditTeamFrame extends JFrame{
 								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
 						st.executeUpdate(deleteFromTeamMembersSql);
 					}
-					
-						
-						
-						
-					
-					
 					
 					
 					int teamLen = studentTable.getRowCount();
