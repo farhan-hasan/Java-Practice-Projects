@@ -25,10 +25,51 @@ public class MainFrame extends JFrame{
 	Font buttonFont = new Font("Times New Roman", Font.BOLD, 15);
 	
 	JTabbedPane mainPane;
-	JPanel myProjectsPanel, newProjectPanel;
+	JPanel myCoursesPanel, newCoursePanel, myProjectsPanel, newProjectPanel;
 	
-	JButton myProjectsSignOutButton;
+	JButton myProjectsSignOutButton, myCoursesSignOutButton;
 	
+	// My Courses variables
+	
+	String myCoursesTeamObj[] = {"","","","","","",""};
+	
+	JButton myCoursesSearchButton, myCoursesDeleteAllButton, myCoursesExpandButton, myCoursesMarkSheetButton;
+	JButton myCoursesAttendanceSheetButton, myCoursesEditSectionButton, myCoursesDeleteSectionButton;
+	
+	JLabel myCoursesSemesterLabel;
+	
+	JTextField myCoursesSemesterTextField;
+	
+	JTable myCoursesCourseTable;
+	JScrollPane myCoursesCourseTableScrollPane;
+	Object myCoursesCourseTableData[][] = {};
+	String myCoursesCourseTableColumns[] = {"Course Code","Course Name"};
+	DefaultTableModel myCoursesCourseTableModel = new DefaultTableModel(myCoursesCourseTableData,myCoursesCourseTableColumns);
+	
+	JTable myCoursesDetailsTable;
+	JScrollPane myCoursesDetailsTableScrollPane;
+	Object myCoursesDetailsTableData[][] = {};
+	String myCoursesDetailsTableColumns[] = {"Course Code","Course Name","Section","Batch","Department"};
+	DefaultTableModel myCoursesDetailsTableModel = new DefaultTableModel(myCoursesDetailsTableData,myCoursesDetailsTableColumns);
+	
+	String myCoursesExpandedSemester = "";
+	
+	// New Course variables
+	
+	JButton newCourseAddButton, newCourseUpdateButton, newCourseDeleteButton, newCourseSaveButton;
+	
+	JLabel newCourseCourseCodeLabel, newCourseCourseNameLabel, newCourseSectionLabel, newCourseDepartmentLabel;
+	JLabel newCourseSemesterLabel, newCourseBatchLabel, newCourseStudentIdLabel, newCourseStudentNameLabel;
+	
+	JTextField newCourseCourseCodeTextField, newCourseCourseNameTextField, newCourseSectionTextField;
+	JTextField newCourseDepartmentTextField, newCourseBatchTextField, newCourseSemesterTextField, newCourseStudentIdTextField, newCourseStudentNameTextField;
+	
+	JTable newCourseStudentTable;
+	JScrollPane newCourseStudentTableScrollPane;
+	Object newCourseStudentTableData[][] = {};
+	String newCourseStudentTableColumns[] = {"Student ID","Student Name"};
+	DefaultTableModel newCourseStudentTableModel = new DefaultTableModel(newCourseStudentTableData,newCourseStudentTableColumns);
+
 	// My Projects variables
 	
 	String editTeamObj[] = {"","","","","",""};
@@ -78,7 +119,8 @@ public class MainFrame extends JFrame{
 	
 	public MainFrame(String username) {
 		
-		editTeamObj[5] = username;
+		
+		
 		
 		prevTeamName = "";
 		prevProjectName = "";
@@ -120,8 +162,729 @@ public class MainFrame extends JFrame{
 		mainPane.setFocusable(false);
 		add(mainPane);
 		
+		// // My Courses Tab
+		
+		myCoursesTeamObj[6] = username;
+		
+		myCoursesPanel = new JPanel();
+		myCoursesPanel.setLayout(null);
+		myCoursesPanel.setBackground(lightColor);
+		
+		
+		myCoursesSemesterLabel = new JLabel("Semester [eg: Spring-2024]");
+		myCoursesSemesterLabel.setFont(labelFont);
+		myCoursesSemesterLabel.setBounds(20,20,280,70);
+		myCoursesSemesterLabel.setForeground(Color.black);
+		myCoursesPanel.add(myCoursesSemesterLabel);
+		
+		myCoursesSemesterTextField = new JTextField();
+		myCoursesSemesterTextField.setFont(textFieldFont);
+		myCoursesSemesterTextField.setBounds(20,70,180,25);
+		myCoursesSemesterTextField.setBackground(Color.white);
+		myCoursesPanel.add(myCoursesSemesterTextField);
+		
+		myCoursesSearchButton = new JButton("Search");
+		myCoursesSearchButton.setFont(buttonFont);
+		myCoursesSearchButton.setBounds(210,70,90,25);
+		myCoursesSearchButton.setForeground(Color.white);
+		myCoursesSearchButton.setFocusable(false);
+		myCoursesSearchButton.setBackground(darkColor);
+		myCoursesSearchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String semester = "";
+				
+				semester = myCoursesSemesterTextField.getText();
+				
+				if(semester.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter semester");
+					return;
+				}
+				
+				myCoursesTeamObj[5] = semester;
+				
+				int	courseLen = myCoursesCourseTable.getRowCount();
+				
+				if (courseLen > 0) {
+				    for (int i = courseLen - 1; i > -1; i--) {
+				    	myCoursesCourseTableModel.removeRow(i);
+				    }
+				}
+
+				
+				try {
+					String searchSQL = "SELECT DISTINCT `course_code`, `course_name` FROM `course_taken` WHERE lower(trim(semester)) = lower(trim('"+semester+"')) and lower(trim(username)) = lower(trim('"+loginUserName+"'))";
+					
+					ResultSet rs = st.executeQuery(searchSQL);
+					
+					while(rs.next()) {
+						String courseCode = rs.getString(1);
+						String courseName = rs.getString(2);
+						Object newRow[] = {courseCode, courseName};
+						myCoursesCourseTableModel.addRow(newRow);
+					}
+					
+					//myCoursesCourseTableModel.addRow(newRow);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		myCoursesPanel.add(myCoursesSearchButton);
+		
+		myCoursesSignOutButton = new JButton("Sign Out");
+		myCoursesSignOutButton.setFont(buttonFont);
+		myCoursesSignOutButton.setBounds(800,20,180,25);
+		myCoursesSignOutButton.setForeground(Color.white);
+		myCoursesSignOutButton.setFocusable(false);
+		myCoursesSignOutButton.setBackground(red);
+		myCoursesSignOutButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+					new LoginFrame();
+				} else {
+				    return;
+				}	
+			}
+		});
+		myCoursesPanel.add(myCoursesSignOutButton);
+		
+		myCoursesDeleteAllButton = new JButton("Delete All");
+		myCoursesDeleteAllButton.setFont(buttonFont);
+		myCoursesDeleteAllButton.setBounds(800,70,180,25);
+		myCoursesDeleteAllButton.setForeground(Color.white);
+		myCoursesDeleteAllButton.setFocusable(false);
+		myCoursesDeleteAllButton.setBackground(red);
+		myCoursesDeleteAllButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String semester = "";
+				
+				semester = myCoursesSemesterTextField.getText();
+				
+				if(semester.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter a semester");
+					return;
+				}
+				
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all data of this semester?", "Delete all?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					try {
+						String deleteFromProjectSql = "DELETE FROM `course_taken` where "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+						st.executeUpdate(deleteFromProjectSql);
+						
+						String deleteFromTeamMembersSql = "DELETE FROM `student_list` where "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+						st.executeUpdate(deleteFromTeamMembersSql);
+						
+						
+						int courseLen = myCoursesCourseTable.getRowCount();
+						if (courseLen > 0) {
+						    for (int i = courseLen - 1; i > -1; i--) {
+						    	myCoursesCourseTableModel.removeRow(i);
+						    }
+						}
+						
+						int teamLen = myCoursesDetailsTable.getRowCount();
+						if (teamLen > 0) {
+						    for (int i = teamLen - 1; i > -1; i--) {
+						    	myCoursesDetailsTableModel.removeRow(i);
+						    }
+						}
+						
+						
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+				    return;
+				}	
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesDeleteAllButton);
+		
+		myCoursesCourseTable = new JTable(myCoursesCourseTableModel);
+		myCoursesCourseTable.setOpaque(true);
+		myCoursesCourseTable.setFillsViewportHeight(true);
+		myCoursesCourseTable.setBackground(Color.white);
+		myCoursesCourseTableScrollPane = new JScrollPane(myCoursesCourseTable);
+		myCoursesCourseTableScrollPane.setBounds(20, 110, 962, 220);
+		myCoursesCourseTable.getTableHeader().setBackground(darkColor);
+		myCoursesCourseTable.getTableHeader().setForeground(Color.white);
+		myCoursesCourseTable.getTableHeader().setFont(labelFont);
+		//myCoursesCourseTable.add(myCoursesCourseTableScrollPane);
+		myCoursesCourseTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = myCoursesCourseTable.getSelectedRow();
+				
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesCourseTableScrollPane);
+		
+		myCoursesExpandButton = new JButton("Expand");
+		myCoursesExpandButton.setFont(buttonFont);
+		myCoursesExpandButton.setBounds(20,345,90,25);
+		myCoursesExpandButton.setForeground(Color.white);
+		myCoursesExpandButton.setFocusable(false);
+		myCoursesExpandButton.setBackground(darkColor);
+		myCoursesExpandButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = -1;
+				
+				idx = myCoursesCourseTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a course");
+					return;
+				}
+				
+				
+				
+				int teamLen = myCoursesDetailsTable.getRowCount();
+				
+				if (teamLen > 0) {
+				    for (int i = teamLen - 1; i > -1; i--) {
+				    	myCoursesDetailsTableModel.removeRow(i);
+				    }
+				}
+				
+				String courseCode = myCoursesCourseTableModel.getValueAt(idx, 0).toString();
+				String courseName = myCoursesCourseTableModel.getValueAt(idx, 1).toString();
+				myCoursesExpandedSemester = myCoursesSemesterTextField.getText() ;
+				
+				try {
+					String searchSQL = "SELECT * FROM `course_taken` WHERE "
+							+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(course_name)) = lower(trim('"+courseName+"')) and "
+							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester)) = lower(trim('"+myCoursesExpandedSemester+"'))";
+					
+					ResultSet rs = st.executeQuery(searchSQL);
+					
+					while(rs.next()) {
+						String coursecode = rs.getString(1);
+						String coursename = rs.getString(2);
+						String section = rs.getString(3);
+						String batch = rs.getString(4);
+						String department = rs.getString(5);
+						Object newRow[] = {coursecode, coursename, section, batch, department};
+						myCoursesDetailsTableModel.addRow(newRow);
+					}
+				} catch (SQLException e2) {
+						e2.printStackTrace();
+				}
+			}
+		});
+		myCoursesPanel.add(myCoursesExpandButton);
+		
+		myCoursesDetailsTable = new JTable(myCoursesDetailsTableModel);
+		myCoursesDetailsTable.setOpaque(true);
+		myCoursesDetailsTable.setFillsViewportHeight(true);
+		myCoursesDetailsTable.setBackground(Color.white);
+		myCoursesDetailsTableScrollPane = new JScrollPane(myCoursesDetailsTable);
+		myCoursesDetailsTableScrollPane.setBounds(20, 385, 962, 220);
+		myCoursesDetailsTable.getTableHeader().setBackground(darkColor);
+		myCoursesDetailsTable.getTableHeader().setForeground(Color.white);
+		myCoursesDetailsTable.getTableHeader().setFont(labelFont);
+		//myCoursesCourseTable.add(myCoursesCourseTableScrollPane);
+		myCoursesDetailsTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = myCoursesDetailsTable.getSelectedRow();
+				
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesDetailsTableScrollPane);
+		
+		
+		myCoursesMarkSheetButton = new JButton("Mark Sheet");
+		myCoursesMarkSheetButton.setFont(buttonFont);
+		myCoursesMarkSheetButton.setBounds(20,640,180,25);
+		myCoursesMarkSheetButton.setForeground(Color.white);
+		myCoursesMarkSheetButton.setFocusable(false);
+		myCoursesMarkSheetButton.setBackground(darkColor);
+		myCoursesMarkSheetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = -1;
+				idx = myCoursesDetailsTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
+				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
+				String section = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
+				String batch = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				String department = myCoursesDetailsTableModel.getValueAt(idx, 4).toString();
+				
+				myCoursesTeamObj[0] = courseCode;
+				myCoursesTeamObj[1] = courseName;
+				myCoursesTeamObj[2] = section;
+				myCoursesTeamObj[3] = batch;
+				myCoursesTeamObj[4] = department;
+				//myCoursesTeamObj[5] on searh button and myCoursesTeamObj[6] at the beginning
+				
+				new MarkSheet(myCoursesTeamObj);
+			}
+		});
+		myCoursesPanel.add(myCoursesMarkSheetButton);
+		
+		myCoursesAttendanceSheetButton = new JButton("Attendance Sheet");
+		myCoursesAttendanceSheetButton.setFont(buttonFont);
+		myCoursesAttendanceSheetButton.setBounds(220,640,180,25);
+		myCoursesAttendanceSheetButton.setForeground(Color.white);
+		myCoursesAttendanceSheetButton.setFocusable(false);
+		myCoursesAttendanceSheetButton.setBackground(darkColor);
+		myCoursesAttendanceSheetButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = -1;
+				idx = myCoursesDetailsTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
+				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
+				String section = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
+				String batch = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				String department = myCoursesDetailsTableModel.getValueAt(idx, 4).toString();
+				
+				myCoursesTeamObj[0] = courseCode;
+				myCoursesTeamObj[1] = courseName;
+				myCoursesTeamObj[2] = section;
+				myCoursesTeamObj[3] = batch;
+				myCoursesTeamObj[4] = department;
+				//myCoursesTeamObj[5] on searh button and myCoursesTeamObj[6] at the beginning
+				
+				new SessionHistoryFrame(myCoursesTeamObj);
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesAttendanceSheetButton);
+		
+		myCoursesEditSectionButton = new JButton("Edit Section");
+		myCoursesEditSectionButton.setFont(buttonFont);
+		myCoursesEditSectionButton.setBounds(420,640,180,25);
+		myCoursesEditSectionButton.setForeground(Color.white);
+		myCoursesEditSectionButton.setFocusable(false);
+		myCoursesEditSectionButton.setBackground(darkColor);
+		myCoursesEditSectionButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				int idx = -1;
+				idx = myCoursesDetailsTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
+				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
+				String section = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
+				String batch = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				String department = myCoursesDetailsTableModel.getValueAt(idx, 4).toString();
+				
+				myCoursesTeamObj[0] = courseCode;
+				myCoursesTeamObj[1] = courseName;
+				myCoursesTeamObj[2] = section;
+				myCoursesTeamObj[3] = batch;
+				myCoursesTeamObj[4] = department;
+				//myCoursesTeamObj[5] on searh button and myCoursesTeamObj[6] at the beginning
+				
+				new EditSectionFrame(myCoursesTeamObj);
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesEditSectionButton);
+		
+		myCoursesDeleteSectionButton = new JButton("Delete Section");
+		myCoursesDeleteSectionButton.setFont(buttonFont);
+		myCoursesDeleteSectionButton.setBounds(800,640,180,25);
+		myCoursesDeleteSectionButton.setForeground(Color.white);
+		myCoursesDeleteSectionButton.setFocusable(false);
+		myCoursesDeleteSectionButton.setBackground(red);
+		myCoursesDeleteSectionButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = -1;
+				
+				
+				idx = myCoursesDetailsTable.getSelectedRow();
+				
+				if(idx==-1) {
+					JOptionPane.showMessageDialog(null, "Please select a team");
+					return;
+				}
+				
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the team?", "Delete Team?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+					return;
+				}
+				
+				String projectName = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
+				String teamName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
+				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
+				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				
+				
+				try {
+					String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"'))";
+					st.executeUpdate(deleteFromTeamMembersSql);
+					
+					String deleteFromProjectSql = "DELETE FROM `projects` where "
+							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"')) and "
+							+ "lower(trim(project_name))=lower(trim('"+projectName+"'))";
+					st.executeUpdate(deleteFromProjectSql);
+					
+					
+					myCoursesDetailsTableModel.removeRow(myCoursesDetailsTable.getSelectedRow());
+				
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		myCoursesPanel.add(myCoursesDeleteSectionButton);
+		
+		
+		mainPane.add("My Courses",myCoursesPanel);
+		
+		
+		/// New Course Tab
+		
+		newCoursePanel = new JPanel();
+		newCoursePanel.setLayout(null);
+		newCoursePanel.setBackground(lightColor);
+		
+		
+		newCourseCourseCodeLabel = new JLabel("Course Code");
+		newCourseCourseCodeLabel.setFont(labelFont);
+		newCourseCourseCodeLabel.setBounds(20,20,280,70);
+		newCourseCourseCodeLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseCourseCodeLabel);
+		
+		newCourseCourseCodeTextField = new JTextField();
+		newCourseCourseCodeTextField.setFont(textFieldFont);
+		newCourseCourseCodeTextField.setBounds(20,70,180,25);
+		newCourseCourseCodeTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseCourseCodeTextField);
+		
+		newCourseCourseNameLabel = new JLabel("Course Name");
+		newCourseCourseNameLabel.setFont(labelFont);
+		newCourseCourseNameLabel.setBounds(215,20,280,70);
+		newCourseCourseNameLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseCourseNameLabel);
+		
+		newCourseCourseNameTextField = new JTextField();
+		newCourseCourseNameTextField.setFont(textFieldFont);
+		newCourseCourseNameTextField.setBounds(215,70,180,25);
+		newCourseCourseNameTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseCourseNameTextField);
+		
+		newCourseSectionLabel = new JLabel("Section");
+		newCourseSectionLabel.setFont(labelFont);
+		newCourseSectionLabel.setBounds(410,20,280,70);
+		newCourseSectionLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseSectionLabel);
+		
+		newCourseSectionTextField = new JTextField();
+		newCourseSectionTextField.setFont(textFieldFont);
+		newCourseSectionTextField.setBounds(410,70,180,25);
+		newCourseSectionTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseSectionTextField);
+		
+		newCourseBatchLabel = new JLabel("Batch");
+		newCourseBatchLabel.setFont(labelFont);
+		newCourseBatchLabel.setBounds(605,20,280,70);
+		newCourseBatchLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseBatchLabel);
+		
+		newCourseBatchTextField = new JTextField();
+		newCourseBatchTextField.setFont(textFieldFont);
+		newCourseBatchTextField.setBounds(605,70,180,25);
+		newCourseBatchTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseBatchTextField);
+		
+		newCourseDepartmentLabel = new JLabel("Department");
+		newCourseDepartmentLabel.setFont(labelFont);
+		newCourseDepartmentLabel.setBounds(800,20,280,70);
+		newCourseDepartmentLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseDepartmentLabel);
+		
+		newCourseDepartmentTextField = new JTextField();
+		newCourseDepartmentTextField.setFont(textFieldFont);
+		newCourseDepartmentTextField.setBounds(800,70,180,25);
+		newCourseDepartmentTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseDepartmentTextField);
+		
+		newCourseSemesterLabel = new JLabel("Semester");
+		newCourseSemesterLabel.setFont(labelFont);
+		newCourseSemesterLabel.setBounds(800,330,280,70);
+		newCourseSemesterLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseSemesterLabel);
+		
+		newCourseSemesterTextField = new JTextField();
+		newCourseSemesterTextField.setFont(textFieldFont);
+		newCourseSemesterTextField.setBounds(800,380,180,25);
+		newCourseSemesterTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseSemesterTextField);
+		
+		newCourseStudentTable = new JTable(newCourseStudentTableModel);
+		newCourseStudentTable.setOpaque(true);
+		newCourseStudentTable.setFillsViewportHeight(true);
+		newCourseStudentTable.setBackground(Color.white);
+		newCourseStudentTableScrollPane = new JScrollPane(newCourseStudentTable);
+		newCourseStudentTableScrollPane.setBounds(20, 110, 962, 220);
+		newCourseStudentTable.getTableHeader().setBackground(darkColor);
+		newCourseStudentTable.getTableHeader().setForeground(Color.white);
+		newCourseStudentTable.getTableHeader().setFont(labelFont);
+		//myProjectsCourseTable.add(myProjectsCourseTableScrollPane);
+		newCourseStudentTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = newCourseStudentTable.getSelectedRow();
+				
+				String studentId = newCourseStudentTableModel.getValueAt(idx, 0).toString();
+				String studentName = newCourseStudentTableModel.getValueAt(idx, 1).toString();
+				
+				newCourseStudentIdTextField.setText(studentId);
+				newCourseStudentNameTextField.setText(studentName);
+				
+			}
+		});
+		newCoursePanel.add(newCourseStudentTableScrollPane);
+		
+		newCourseStudentIdLabel = new JLabel("Student ID");
+		newCourseStudentIdLabel.setFont(labelFont);
+		newCourseStudentIdLabel.setBounds(20,330,280,70);
+		newCourseStudentIdLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseStudentIdLabel);
+		
+		newCourseStudentIdTextField = new JTextField();
+		newCourseStudentIdTextField.setFont(textFieldFont);
+		newCourseStudentIdTextField.setBounds(20,380,180,25);
+		newCourseStudentIdTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseStudentIdTextField);
+		
+		newCourseStudentNameLabel = new JLabel("Student Name");
+		newCourseStudentNameLabel.setFont(labelFont);
+		newCourseStudentNameLabel.setBounds(215,330,280,70);
+		newCourseStudentNameLabel.setForeground(Color.black);
+		newCoursePanel.add(newCourseStudentNameLabel);
+		
+		newCourseStudentNameTextField = new JTextField();
+		newCourseStudentNameTextField.setFont(textFieldFont);
+		newCourseStudentNameTextField.setBounds(215,380,180,25);
+		newCourseStudentNameTextField.setBackground(Color.white);
+		newCoursePanel.add(newCourseStudentNameTextField);
+		
+		newCourseAddButton = new JButton("Add");
+		newCourseAddButton.setFont(buttonFont);
+		newCourseAddButton.setBounds(20,420,180,25);
+		newCourseAddButton.setForeground(Color.white);
+		newCourseAddButton.setFocusable(false);
+		newCourseAddButton.setBackground(darkColor);
+		newCourseAddButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String studentId = newCourseStudentIdTextField.getText();
+				String studentName = newCourseStudentNameTextField.getText();
+				Object newRow[] = {studentId, studentName};
+				newCourseStudentTableModel.addRow(newRow);
+				
+			}
+		});
+		newCoursePanel.add(newCourseAddButton);
+		
+		newCourseUpdateButton = new JButton("Update");
+		newCourseUpdateButton.setFont(buttonFont);
+		newCourseUpdateButton.setBounds(215,420,180,25);
+		newCourseUpdateButton.setForeground(Color.white);
+		newCourseUpdateButton.setFocusable(false);
+		newCourseUpdateButton.setBackground(darkColor);
+		newCourseUpdateButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String studentId = newCourseStudentIdTextField.getText();
+				String studentName = newCourseStudentNameTextField.getText();
+				int idx = newCourseStudentTable.getSelectedRow();
+				
+				newCourseStudentTableModel.setValueAt(studentId, idx, 0);
+				newCourseStudentTableModel.setValueAt(studentName, idx, 1);
+				
+			}
+		});
+		newCoursePanel.add(newCourseUpdateButton);
+		
+		newCourseDeleteButton = new JButton("Delete");
+		newCourseDeleteButton.setFont(buttonFont);
+		newCourseDeleteButton.setBounds(410,420,180,25);
+		newCourseDeleteButton.setForeground(Color.white);
+		newCourseDeleteButton.setFocusable(false);
+		newCourseDeleteButton.setBackground(darkColor);
+		newCourseDeleteButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int idx = newCourseStudentTable.getSelectedRow();
+				
+				newCourseStudentTableModel.removeRow(idx);
+				
+			}
+		});
+		newCoursePanel.add(newCourseDeleteButton);
+		
+		newCourseSaveButton = new JButton("Save");
+		newCourseSaveButton.setFont(buttonFont);
+		newCourseSaveButton.setBounds(605,420,180,25);
+		newCourseSaveButton.setForeground(Color.white);
+		newCourseSaveButton.setFocusable(false);
+		newCourseSaveButton.setBackground(darkColor);
+		newCourseSaveButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				int len = newCourseStudentTable.getRowCount();
+				
+				if(len==0) {
+					JOptionPane.showMessageDialog(null, "No students found");
+					return;
+				}
+				
+				String section = newCourseSectionTextField.getText();
+				String batch = newCourseBatchTextField.getText();
+				String department = newCourseDepartmentTextField.getText();
+				String courseCode = newCourseCourseCodeTextField.getText();
+				String courseName = newCourseCourseNameTextField.getText();
+				String semester = newCourseSemesterTextField.getText();
+				
+				
+				if(section.equals("") || batch.equals("") || courseCode.equals("") || courseName.equals("") || semester.equals("") || department.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter data in missing fields");
+					return;
+				}
+				
+				try {
+					
+					// // Course Code and Name check
+					String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) or lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+					ResultSet rs2 = st.executeQuery(searchCourseSql);
+					
+					int cnt2 = 0;
+					String existingCourseCode = "", existingCourseName = "";
+					while(rs2.next()) {
+						existingCourseCode = rs2.getString(1);
+						existingCourseName = rs2.getString(2);
+						if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
+							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
+							return;
+						}
+						if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
+							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
+							return;
+						}
+						cnt2++;
+					}
+					
+					
+					
+					
+					String insertCourseSql = "INSERT INTO `course`(`course_code`, `course_name`) VALUES "
+							+ "('"+courseCode+"','"+courseName+"')";
+					if(cnt2==0)st.executeUpdate(insertCourseSql);
+					
+					String deleteFromStudentListSql = "DELETE FROM `student_list` where "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+					st.executeUpdate(deleteFromStudentListSql);
+					
+					String deleteFromCourseTakenSql = "DELETE FROM `course_taken` where "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+					st.executeUpdate(deleteFromCourseTakenSql);
+					
+					String insertCourseTakenSql = "INSERT INTO `course_taken`(`course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`) VALUES "
+							+ "('"+courseCode+"','"+courseName+"','"+section+"','"+batch+"','"+department+"','"+semester+"','"+loginUserName+"')";
+					st.executeUpdate(insertCourseTakenSql);
+					
+					for(int i=0;i<len;i++) {
+						String studentId = newCourseStudentTableModel.getValueAt(i, 0).toString();
+						String studentName = newCourseStudentTableModel.getValueAt(i, 1).toString();
+						String insertStudentsSql = "INSERT INTO `student_list`(`student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`) VALUES "
+								+ "('"+studentId+"','"+studentName+"','"+courseCode+"','"+courseName+"','"+section+"','"+batch+"','"+department+"','"+semester+"','"+username+"')";
+						st.executeUpdate(insertStudentsSql);
+						
+						System.out.println(studentId);
+						System.out.println(studentName);
+					}
+					
+					
+					
+					
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		newCoursePanel.add(newCourseSaveButton);
+		
+		
+		
+		
+		mainPane.add("New Course",newCoursePanel);
+		
+		
+		
+		
 		
 		/// My Projects Tab
+		
+		editTeamObj[5] = username;
 		
 		myProjectsPanel = new JPanel();
 		myProjectsPanel.setLayout(null);
@@ -217,6 +980,57 @@ public class MainFrame extends JFrame{
 		myProjectsDeleteAllButton.setForeground(Color.white);
 		myProjectsDeleteAllButton.setFocusable(false);
 		myProjectsDeleteAllButton.setBackground(red);
+		myProjectsDeleteAllButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String semester = "";
+				
+				semester = myProjectsSemesterTextField.getText();
+				
+				if(semester.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter a semester");
+					return;
+				}
+				
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all data of this semester?", "Delete all?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					try {
+						String deleteFromProjectSql = "DELETE FROM `projects` where "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+						st.executeUpdate(deleteFromProjectSql);
+						
+						String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+						st.executeUpdate(deleteFromTeamMembersSql);
+						
+						
+						int courseLen = myProjectsCourseTable.getRowCount();
+						if (courseLen > 0) {
+						    for (int i = courseLen - 1; i > -1; i--) {
+						    	myProjectsCourseTableModel.removeRow(i);
+						    }
+						}
+						
+						int teamLen = myProjectsTeamTable.getRowCount();
+						if (teamLen > 0) {
+						    for (int i = teamLen - 1; i > -1; i--) {
+						    	myProjectsTeamTableModel.removeRow(i);
+						    }
+						}
+						
+						
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+				    return;
+				}	
+				
+			}
+		});
 		myProjectsPanel.add(myProjectsDeleteAllButton);
 		
 		myProjectsCourseTable = new JTable(myProjectsCourseTableModel);
@@ -413,6 +1227,8 @@ public class MainFrame extends JFrame{
 				editTeamObj[2] = courseCode;
 				editTeamObj[3] = courseName;
 				//editTeamObj[4] on searh button and editTeamObj[5] at the beginning
+				
+				
 				
 				new EditTeamFrame(editTeamObj);
 				

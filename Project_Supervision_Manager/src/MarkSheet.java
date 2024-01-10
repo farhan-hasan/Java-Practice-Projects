@@ -10,7 +10,7 @@ import java.sql.Statement;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
-public class EditTeamFrame extends JFrame{
+public class MarkSheet extends JFrame{
 	
 	Color lightColor = new Color(175, 244, 198);
 	Color darkColor = new Color(20, 174, 92);
@@ -37,30 +37,32 @@ public class EditTeamFrame extends JFrame{
 	
 	boolean teamProjectChanged = false, courseChanged = false;
 	
-	String parentProjectName, parentTeamName, parentCourseCode, parentCourseName, parentSemester, loginUserName;
+	String parentCourseCode, parentCourseName, parentSection, parentBatch, parentDepartment, parentSemester, loginUserName;
 	
 	String currentStudentId, currentStudentName, currentProjectName, currentTeamName, currentCourseCode, currentCourseName, currentSemester;
 	
-	public EditTeamFrame(String[] data) {
+	public MarkSheet(String[] data) {
 		
-		parentProjectName = data[0];
-		parentTeamName = data[1];
-		parentCourseCode = data[2];
-		parentCourseName = data[3];
-		parentSemester = data[4];
-		loginUserName = data[5];
+		parentCourseCode = data[0];
+		parentCourseName = data[1];
+		parentSection = data[2];
+		parentBatch = data[3];
+		parentDepartment = data[4];
+		parentSemester = data[5];
+		loginUserName = data[6];
 		
 		
-		currentProjectName = parentProjectName;
-		currentTeamName = parentTeamName;
-		currentCourseCode = parentCourseCode;
-		currentCourseName = parentCourseName;
-		currentSemester = parentSemester;
+//		currentProjectName = parentProjectName;
+//		currentTeamName = parentTeamName;
+//		currentCourseCode = parentCourseCode;
+//		currentCourseName = parentCourseName;
+//		currentSemester = parentSemester;
 		
-		System.out.println(parentProjectName);
-		System.out.println(parentTeamName);
 		System.out.println(parentCourseCode);
 		System.out.println(parentCourseName);
+		System.out.println(parentSection);
+		System.out.println(parentBatch);
+		System.out.println(parentDepartment);
 		System.out.println(parentSemester);
 		System.out.println(loginUserName);
 		
@@ -71,7 +73,7 @@ public class EditTeamFrame extends JFrame{
 			st = con.createStatement();	
 			
 			String sql = "SELECT * FROM `team_members` WHERE "
-					+ "lower(trim(team_name)) = lower(trim('"+parentTeamName+"')) "
+					//+ "lower(trim(team_name)) = lower(trim('"+parentTeamName+"')) "
 					+ "and lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) "
 					+ "and lower(trim(username)) = lower(trim('"+loginUserName+"')) "
 					+ "and lower(trim(semester)) = lower(trim('"+parentSemester+"'))";
@@ -192,14 +194,14 @@ public class EditTeamFrame extends JFrame{
 				
 				String studentId = studentTableModel.getValueAt(idx, 0).toString();
 				String studentName = studentTableModel.getValueAt(idx, 1).toString();
-				String projectName = parentProjectName;
-				String teamName = parentTeamName;
+				//String projectName = parentProjectName;
+				//String teamName = parentTeamName;
 				String courseCode = parentCourseCode;
 				String courseName = parentCourseName;
 				String semester = parentSemester;
 				
-				projectNameTextField.setText(projectName);
-				teamNameTextField.setText(teamName);
+				//projectNameTextField.setText(projectName);
+				//teamNameTextField.setText(teamName);
 				courseCodeTextField.setText(courseCode);
 				courseNameTextField.setText(courseName);
 				semesterTextField.setText(semester);
@@ -238,8 +240,8 @@ public class EditTeamFrame extends JFrame{
 		add(studentNameTextField);
 		
 		// // setting the parent data in textfields
-		projectNameTextField.setText(parentProjectName);
-		teamNameTextField.setText(parentTeamName);
+		//projectNameTextField.setText(parentProjectName);
+		//teamNameTextField.setText(parentTeamName);
 		courseCodeTextField.setText(parentCourseCode);
 		courseNameTextField.setText(parentCourseName);
 		semesterTextField.setText(parentSemester);
