@@ -56,7 +56,7 @@ public class MainFrame extends JFrame{
 	
 	// New Course variables
 	
-	JButton newCourseAddButton, newCourseUpdateButton, newCourseDeleteButton, newCourseSaveButton;
+	JButton newCourseAddButton, newCourseUpdateButton, newCourseDeleteButton, newCourseSaveButton,newCourseFetchStudents;
 	
 	JLabel newCourseCourseCodeLabel, newCourseCourseNameLabel, newCourseSectionLabel, newCourseDepartmentLabel;
 	JLabel newCourseSemesterLabel, newCourseBatchLabel, newCourseStudentIdLabel, newCourseStudentNameLabel;
@@ -205,11 +205,17 @@ public class MainFrame extends JFrame{
 				
 				myCoursesTeamObj[5] = semester;
 				
-				int	courseLen = myCoursesCourseTable.getRowCount();
-				
+				int courseLen = myCoursesCourseTable.getRowCount();
 				if (courseLen > 0) {
 				    for (int i = courseLen - 1; i > -1; i--) {
 				    	myCoursesCourseTableModel.removeRow(i);
+				    }
+				}
+				
+				int teamLen = myCoursesDetailsTable.getRowCount();
+				if (teamLen > 0) {
+				    for (int i = teamLen - 1; i > -1; i--) {
+				    	myCoursesDetailsTableModel.removeRow(i);
 				    }
 				}
 
@@ -353,7 +359,6 @@ public class MainFrame extends JFrame{
 				}
 				
 				
-				
 				int teamLen = myCoursesDetailsTable.getRowCount();
 				
 				if (teamLen > 0) {
@@ -364,8 +369,7 @@ public class MainFrame extends JFrame{
 				
 				String courseCode = myCoursesCourseTableModel.getValueAt(idx, 0).toString();
 				String courseName = myCoursesCourseTableModel.getValueAt(idx, 1).toString();
-				myCoursesExpandedSemester = myCoursesSemesterTextField.getText() ;
-				
+				myCoursesExpandedSemester = myCoursesSemesterTextField.getText();
 				try {
 					String searchSQL = "SELECT * FROM `course_taken` WHERE "
 							+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
@@ -374,7 +378,7 @@ public class MainFrame extends JFrame{
 							+ "lower(trim(semester)) = lower(trim('"+myCoursesExpandedSemester+"'))";
 					
 					ResultSet rs = st.executeQuery(searchSQL);
-					
+					int cntCourse=0;
 					while(rs.next()) {
 						String coursecode = rs.getString(1);
 						String coursename = rs.getString(2);
@@ -383,7 +387,24 @@ public class MainFrame extends JFrame{
 						String department = rs.getString(5);
 						Object newRow[] = {coursecode, coursename, section, batch, department};
 						myCoursesDetailsTableModel.addRow(newRow);
+						cntCourse++;
 					}
+					
+					if(cntCourse==0) {
+						if (JOptionPane.showConfirmDialog(null, 
+				            "No courses found,Do you want to remove this course from you course list?", "Delete course?", 
+				            JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+							String deleteFromCoursesSql = "DELETE FROM `course_taken` WHERE "
+									+ "lower(trim(semester)) = lower(trim('"+myCoursesExpandedSemester+"')) and "
+									+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+									+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+									+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+							st.executeUpdate(deleteFromCoursesSql);
+				        }
+					}
+					
+					
+					
 				} catch (SQLException e2) {
 						e2.printStackTrace();
 				}
@@ -542,35 +563,41 @@ public class MainFrame extends JFrame{
 					return;
 				}
 				
-				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the team?", "Delete Team?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to delete the section?", "Delete section?", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
 					return;
 				}
 				
-				String projectName = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
-				String teamName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
-				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
-				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				String courseCode = myCoursesDetailsTableModel.getValueAt(idx, 0).toString();
+				String courseName = myCoursesDetailsTableModel.getValueAt(idx, 1).toString();
+				String section = myCoursesDetailsTableModel.getValueAt(idx, 2).toString();
+				String batch = myCoursesDetailsTableModel.getValueAt(idx, 3).toString();
+				String department = myCoursesDetailsTableModel.getValueAt(idx, 4).toString();
 				
 				
 				try {
-					String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
-							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+					String deleteFromStudentListSql = "DELETE FROM `student_list` where "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
 							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
 							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"'))";
-					st.executeUpdate(deleteFromTeamMembersSql);
+							+ "lower(trim(semester))=lower(trim('"+myCoursesExpandedSemester+"'))";
+					st.executeUpdate(deleteFromStudentListSql);
 					
-					String deleteFromProjectSql = "DELETE FROM `projects` where "
-							+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
+					String deleteFromCourseSql = "DELETE FROM `course_taken` where "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
 							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
 							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-							+ "lower(trim(semester))=lower(trim('"+expandedSemester+"')) and "
-							+ "lower(trim(project_name))=lower(trim('"+projectName+"'))";
-					st.executeUpdate(deleteFromProjectSql);
+							+ "lower(trim(semester))=lower(trim('"+myCoursesExpandedSemester+"'))";
+					st.executeUpdate(deleteFromCourseSql);
 					
 					
 					myCoursesDetailsTableModel.removeRow(myCoursesDetailsTable.getSelectedRow());
-				
+					
+					
+					
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
@@ -711,6 +738,72 @@ public class MainFrame extends JFrame{
 		newCourseStudentNameTextField.setBackground(Color.white);
 		newCoursePanel.add(newCourseStudentNameTextField);
 		
+		newCourseFetchStudents = new JButton("Fetch Students");
+		newCourseFetchStudents.setFont(buttonFont);
+		newCourseFetchStudents.setBounds(410,380,375,25);
+		newCourseFetchStudents.setForeground(Color.white);
+		newCourseFetchStudents.setFocusable(false);
+		newCourseFetchStudents.setBackground(darkColor);
+		newCourseFetchStudents.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				String section = newCourseSectionTextField.getText();
+				String batch = newCourseBatchTextField.getText();
+				String department = newCourseDepartmentTextField.getText();
+				
+				if(section.equals("") || batch.equals("") || department.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter Section, Batch and Department");
+					return;
+				}
+				
+				int studentLen = newCourseStudentTableModel.getRowCount();
+				
+				if (studentLen > 0) {
+				    for (int i = studentLen - 1; i > -1; i--) {
+				    	newCourseStudentTableModel.removeRow(i);
+				    }
+				}
+				
+				
+				String searchSql = "SELECT * FROM `student` WHERE "
+						+ "lower(trim(section)) = lower(trim('"+section+"')) and "
+						+ "lower(trim(batch)) = lower(trim('"+batch+"')) and "
+						+ "lower(trim(department)) = lower(trim('"+department+"'))"
+								+ "order by student_id";
+				
+				
+				
+				try {
+					
+					ResultSet rs = st.executeQuery(searchSql);
+					int cntStudent = 0;
+					while(rs.next()) {
+						
+						String studentId = rs.getString(1);
+						String studentName = rs.getString(2);
+						Object newRow[] = {studentId, studentName};
+						newCourseStudentTableModel.addRow(newRow);
+						
+						cntStudent++;
+					}
+					if(cntStudent==0) {
+						JOptionPane.showMessageDialog(null, "No data found");
+						return;
+					}
+					
+					
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		newCoursePanel.add(newCourseFetchStudents);
+		
 		newCourseAddButton = new JButton("Add");
 		newCourseAddButton.setFont(buttonFont);
 		newCourseAddButton.setBounds(20,420,180,25);
@@ -822,6 +915,26 @@ public class MainFrame extends JFrame{
 						cnt2++;
 					}
 					
+					// // Course Duplication check
+					
+					String searchCourseTakenSql = "SELECT * FROM `course_taken` WHERE "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+					st.executeQuery(searchCourseTakenSql);
+					
+					ResultSet searchRs = st.executeQuery(searchCourseTakenSql);
+					int cntSearch = 0;
+					while(searchRs.next()) cntSearch++;
+					
+					if(cntSearch!=0) {
+						JOptionPane.showMessageDialog(null, "Course Already exists");
+						return;
+					}
+					
 					
 					
 					
@@ -930,6 +1043,14 @@ public class MainFrame extends JFrame{
 				if (courseLen > 0) {
 				    for (int i = courseLen - 1; i > -1; i--) {
 				    	myProjectsCourseTableModel.removeRow(i);
+				    }
+				}
+				
+				int teamLen = myProjectsTeamTable.getRowCount();
+				
+				if (teamLen > 0) {
+				    for (int i = teamLen - 1; i > -1; i--) {
+				    	myProjectsTeamTableModel.removeRow(i);
 				    }
 				}
 
@@ -1081,7 +1202,7 @@ public class MainFrame extends JFrame{
 				    	myProjectsTeamTableModel.removeRow(i);
 				    }
 				}
-				
+				int cntProjects = 0;
 				String courseCode = myProjectsCourseTableModel.getValueAt(idx, 0).toString();
 				String courseName = myProjectsCourseTableModel.getValueAt(idx, 1).toString();
 				expandedSemester = myProjectsSemesterTextField.getText() ;
@@ -1100,6 +1221,39 @@ public class MainFrame extends JFrame{
 						String teamName = rs.getString(4);
 						Object newRow[] = {projectName, teamName, courseCode, courseName};
 						myProjectsTeamTableModel.addRow(newRow);
+						cntProjects++;
+					}
+					
+					if(cntProjects==0) {
+						if (JOptionPane.showConfirmDialog(null, 
+					            "No projects found, Do you want to remove this course from you course list?", "Delete course?", 
+					            JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+								String deleteFromProjectsSql = "DELETE FROM `projects` WHERE "
+										+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"')) and "
+										+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+										+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+										+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+								st.executeUpdate(deleteFromProjectsSql);
+					        }
+						
+						int	courseLen = myProjectsCourseTable.getRowCount();
+						
+						if (courseLen > 0) {
+						    for (int i = courseLen - 1; i > -1; i--) {
+						    	myProjectsCourseTableModel.removeRow(i);
+						    }
+						}
+						
+						searchSQL = "SELECT DISTINCT `course_code`, `course_name` FROM `projects` WHERE lower(trim(semester)) = lower(trim('"+expandedSemester+"')) and lower(trim(username)) = lower(trim('"+loginUserName+"'))";
+						
+						rs = st.executeQuery(searchSQL);
+						
+						while(rs.next()) {
+							courseCode = rs.getString(1);
+							courseName = rs.getString(2);
+							Object newRow[] = {courseCode, courseName};
+							myProjectsCourseTableModel.addRow(newRow);
+						}
 					}
 				} catch (SQLException e2) {
 						e2.printStackTrace();
@@ -1284,6 +1438,32 @@ public class MainFrame extends JFrame{
 					
 					
 					myProjectsTeamTableModel.removeRow(myProjectsTeamTable.getSelectedRow());
+					
+//					String searchCourseSql = "SELECT `course_code`, `course_name` FROM `projects` WHERE "
+//							+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+//							+ "lower(trim(course_name)) = lower(trim('"+courseName+"')) and "
+//							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+//							+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"'))";
+//					
+//					ResultSet rs2 = st.executeQuery(searchCourseSql);
+//					
+//					int cntCourse = 0;
+//					
+//					while(rs2.next())cntCourse++;
+//					
+//					if(cntCourse==0) {
+//						if (JOptionPane.showConfirmDialog(null, 
+//				            "Do you want to remove this course from you course list?", "Delete course?", 
+//				            JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+//							String deleteFromProjectsSql = "DELETE FROM `projects` WHERE "
+//									+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"')) and "
+//									+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+//									+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
+//									+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+//							st.executeUpdate(deleteFromProjectsSql);
+//				        }
+//					}
+					
 				
 				} catch (SQLException e1) {
 					e1.printStackTrace();

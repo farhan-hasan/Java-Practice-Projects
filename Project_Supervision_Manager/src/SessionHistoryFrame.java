@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -440,7 +441,28 @@ public class SessionHistoryFrame extends JFrame{
 		printButton.setForeground(Color.white);
 		printButton.setFocusable(false);
 		printButton.setBackground(darkColor);
-		
+		printButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(studentTableModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+				Date fromDate = (Date) dateFrom.getDate();
+				Date toDate = (Date) dateTo.getDate();
+				String from = DateFormat.getDateInstance().format(fromDate);
+				String to = DateFormat.getDateInstance().format(toDate);
+				MessageFormat header = new MessageFormat("Session : " + from + " - " + to);
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					studentTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		add(printButton);
 		
 		setVisible(true);

@@ -416,7 +416,29 @@ public class NewSessionFrame extends JFrame{
 		printButton.setForeground(Color.white);
 		printButton.setFocusable(false);
 		printButton.setBackground(darkColor);
-		
+		printButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(studentTableModel.getRowCount()==0) {
+					JOptionPane.showMessageDialog(null, "No data found.");
+					return;
+				}
+				LocalDate localDate = LocalDate.now();
+				Date DOB = (Date) Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+				date = new JTextField();
+				date.setBounds(20,70,180,25);
+				String dateString = DateFormat.getDateInstance().format(DOB);
+				MessageFormat header = new MessageFormat("Session : " + dateString);
+				MessageFormat footer = new MessageFormat("Page{0, number, integer}");
+				try {
+					studentTable.print(JTable.PrintMode.FIT_WIDTH, header, footer);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
 		add(printButton);
 		
 		setVisible(true);

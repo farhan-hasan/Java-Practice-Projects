@@ -19,7 +19,7 @@ public class EditSectionFrame extends JFrame{
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font buttonFont = new Font("Times New Roman", Font.BOLD, 15);
 	
-	JButton addButton, updateButton, deleteButton, saveButton;
+	JButton addButton, updateButton, deleteButton, saveButton, doneButton;
 	
 	JLabel courseCodeLabel, courseNameLabel, sectionLabel, departmentLabel;
 	JLabel semesterLabel, batchLabel, studentIdLabel, studentNameLabel;
@@ -117,7 +117,7 @@ public class EditSectionFrame extends JFrame{
 		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("Edit Team");
+		setTitle("Edit Section");
 		
 		courseCodeLabel = new JLabel("Course Code");
 		courseCodeLabel.setFont(labelFont);
@@ -127,6 +127,7 @@ public class EditSectionFrame extends JFrame{
 		
 		courseCodeTextField = new JTextField();
 		courseCodeTextField.setFont(textFieldFont);
+		courseCodeTextField.setEditable(false);
 		courseCodeTextField.setBounds(20,70,180,25);
 		courseCodeTextField.setBackground(Color.white);
 		add(courseCodeTextField);
@@ -139,6 +140,7 @@ public class EditSectionFrame extends JFrame{
 		
 		courseNameTextField = new JTextField();
 		courseNameTextField.setFont(textFieldFont);
+		courseNameTextField.setEditable(false);
 		courseNameTextField.setBounds(215,70,180,25);
 		courseNameTextField.setBackground(Color.white);
 		add(courseNameTextField);
@@ -151,6 +153,7 @@ public class EditSectionFrame extends JFrame{
 		
 		sectionTextField = new JTextField();
 		sectionTextField.setFont(textFieldFont);
+		sectionTextField.setEditable(false);
 		sectionTextField.setBounds(410,70,180,25);
 		sectionTextField.setBackground(Color.white);
 		add(sectionTextField);
@@ -163,6 +166,7 @@ public class EditSectionFrame extends JFrame{
 		
 		batchTextField = new JTextField();
 		batchTextField.setFont(textFieldFont);
+		batchTextField.setEditable(false);
 		batchTextField.setBounds(605,70,180,25);
 		batchTextField.setBackground(Color.white);
 		add(batchTextField);
@@ -175,6 +179,7 @@ public class EditSectionFrame extends JFrame{
 		
 		departmentTextField = new JTextField();
 		departmentTextField.setFont(textFieldFont);
+		departmentTextField.setEditable(false);
 		departmentTextField.setBounds(800,70,180,25);
 		departmentTextField.setBackground(Color.white);
 		add(departmentTextField);
@@ -187,6 +192,7 @@ public class EditSectionFrame extends JFrame{
 		
 		semesterTextField = new JTextField();
 		semesterTextField.setFont(textFieldFont);
+		semesterTextField.setEditable(false);
 		semesterTextField.setBounds(800,380,180,25);
 		semesterTextField.setBackground(Color.white);
 		add(semesterTextField);
@@ -333,74 +339,18 @@ public class EditSectionFrame extends JFrame{
 				
 				try {
 					
-//					System.out.println("current Team= " + currentTeamName);
-//					System.out.println("Team = " + teamName);
-//					
-//					System.out.println("current Project= " + currentProjectName);
-//					System.out.println("Project = " + projectName);
-					
-//					// // Team and Project name validation
-//					if(!teamName.equals(currentTeamName) || !projectName.equals(currentProjectName)) {
-//						teamProjectChanged = true;
-//						String searchTeamSql = "SELECT * FROM `projects` WHERE "
-//								+ "lower(trim(course_code))=lower(trim('"+courseCode+"'))and "
-//								+ "lower(trim(course_name))=lower(trim('"+courseName+"'))and "
-//								+ "lower(trim(team_name))=lower(trim('"+teamName+"'))and "
-//								+ "lower(trim(project_name))=lower(trim('"+projectName+"'))and "
-//								+ "lower(trim(semester))=lower(trim('"+semester+"'))and "
-//								+ "lower(trim(username))=lower(trim('"+loginUserName+"'))";
-//						
-//						
-//						int cntTeam=0, cntProject=0;
-//						ResultSet rsTeam = st.executeQuery(searchTeamSql);
-//						while(rsTeam.next())cntTeam++;
-//						
-//						if(cntTeam==0) {
-//							JOptionPane.showMessageDialog(null, "Team Doesn't exists");
-//							return;
-//						}
-//				
-//					}
-					
-					// // Course code and name validation
-					if(!courseName.equals(currentCourseName) || !courseCode.equals(currentCourseCode)) {
-						courseChanged = true;
-						String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE "
-								+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) or "
-								+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
-						ResultSet rs2 = st.executeQuery(searchCourseSql);
-						
-						int cntCourse = 0;
-						String existingCourseCode = "", existingCourseName = "";
-						while(rs2.next()) {
-							existingCourseCode = rs2.getString(1);
-							existingCourseName = rs2.getString(2);
-							if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
-								JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
-								return;
-							}
-							if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
-								JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
-								return;
-							}
-							cntCourse++;
-						}
-						
-					}
 					
 					System.out.println(teamProjectChanged);
 					System.out.println(courseChanged);
 					
-					if(courseChanged==false) {
-						String deleteFromTeamMembersSql = "DELETE FROM `student_list` where "
-								+ "lower(trim(section))=lower(trim('"+section+"')) and "
-								+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
-								+ "lower(trim(department))=lower(trim('"+department+"')) and "
-								+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
-								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
-						st.executeUpdate(deleteFromTeamMembersSql);
-					}
+					String deleteFromTeamMembersSql = "DELETE FROM `student_list` where "
+							+ "lower(trim(section))=lower(trim('"+section+"')) and "
+							+ "lower(trim(batch))=lower(trim('"+batch+"')) and "
+							+ "lower(trim(department))=lower(trim('"+department+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+					st.executeUpdate(deleteFromTeamMembersSql);
 					
 					
 					int teamLen = studentTable.getRowCount();
@@ -432,35 +382,6 @@ public class EditSectionFrame extends JFrame{
 						}
 					}
 					
-					if(courseChanged==true) {
-						teamLen = studentTable.getRowCount();
-						System.out.println("courseChanged check");
-						if (teamLen > 0) {
-							for(int i=0;i<teamLen;i++) {
-								String studentId = studentTableModel.getValueAt(i, 0).toString();
-								String studentName = studentTableModel.getValueAt(i, 1).toString();
-								String deleteFromTeamMembersSql = "DELETE FROM `student_list` where "
-										+ "lower(trim(section))=lower(trim('"+currentSection+"')) and "
-										+ "lower(trim(batch))=lower(trim('"+currentBatch+"')) and "
-										+ "lower(trim(department))=lower(trim('"+currentDepartment+"')) and "
-										+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
-										+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-										+ "lower(trim(semester))=lower(trim('"+semester+"'))";
-								st.executeUpdate(deleteFromTeamMembersSql);
-								
-								System.out.println("in delete"+studentId);
-								System.out.println("in delete"+studentName);
-							}
-						}
-					}
-					
-					currentCourseCode = courseCode;
-					currentCourseName = courseName;
-					currentSection = section;
-					currentBatch = batch;
-					currentDepartment = department;
-					currentSemester = semester;
-					
 				
 				} catch(SQLException e1) {
 					e1.printStackTrace();
@@ -468,6 +389,26 @@ public class EditSectionFrame extends JFrame{
 			}
 		});
 		add(saveButton);
+		
+		doneButton = new JButton("Done");
+		doneButton.setFont(buttonFont);
+		doneButton.setBounds(800,420,180,25);
+		doneButton.setForeground(Color.white);
+		doneButton.setFocusable(false);
+		doneButton.setBackground(darkColor);
+		doneButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you, all unsaved data will be lost", "Close Window?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+				} else {
+				    return;
+				}
+				
+			}
+		});
+		add(doneButton);
 		
 		
 		

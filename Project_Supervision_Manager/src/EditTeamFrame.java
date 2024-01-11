@@ -35,7 +35,7 @@ public class EditTeamFrame extends JFrame{
 	Statement st;
 	Connection con;
 	
-	boolean teamProjectChanged = false, courseChanged = false;
+	boolean teamProjectChanged = false, courseChanged = false, semesterChanged = false;
 	
 	String parentProjectName, parentTeamName, parentCourseCode, parentCourseName, parentSemester, loginUserName;
 	
@@ -321,6 +321,7 @@ public class EditTeamFrame extends JFrame{
 				
 				teamProjectChanged = false;
 				courseChanged = false;
+				semesterChanged = false;
 				
 				try {
 					
@@ -334,20 +335,20 @@ public class EditTeamFrame extends JFrame{
 					if(!teamName.equals(currentTeamName) || !projectName.equals(currentProjectName)) {
 						teamProjectChanged = true;
 						String searchTeamSql = "SELECT * FROM `projects` WHERE "
-								+ "lower(trim(course_code))=lower(trim('"+courseCode+"'))and "
-								+ "lower(trim(course_name))=lower(trim('"+courseName+"'))and "
-								+ "lower(trim(team_name))=lower(trim('"+teamName+"'))and "
-								+ "lower(trim(project_name))=lower(trim('"+projectName+"'))and "
-								+ "lower(trim(semester))=lower(trim('"+semester+"'))and "
-								+ "lower(trim(username))=lower(trim('"+loginUserName+"'))";
+								+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+								+ "lower(trim(course_name))=lower(trim('"+courseName+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"')) and "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "(lower(trim(team_name))=lower(trim('"+teamName+"')) or "
+								+ "lower(trim(project_name))=lower(trim('"+projectName+"'))) ";
 						
 						
 						int cntTeam=0, cntProject=0;
 						ResultSet rsTeam = st.executeQuery(searchTeamSql);
 						while(rsTeam.next())cntTeam++;
 						
-						if(cntTeam==0) {
-							JOptionPane.showMessageDialog(null, "Team Doesn't exists");
+						if(cntTeam!=0) {
+							JOptionPane.showMessageDialog(null, "Team name of Project name already exists for team");
 							return;
 						}
 				
@@ -379,21 +380,60 @@ public class EditTeamFrame extends JFrame{
 						
 					}
 					
+					// // Semester Validation
+					if(!semester.equals(currentSemester)) {
+						semesterChanged = true;
+						String searchTeamSql = "SELECT * FROM `projects` WHERE "
+								+ "lower(trim(course_code))=lower(trim('"+courseCode+"'))and "
+								+ "lower(trim(course_name))=lower(trim('"+courseName+"'))and "
+								+ "lower(trim(team_name))=lower(trim('"+teamName+"'))and "
+								+ "lower(trim(project_name))=lower(trim('"+projectName+"'))and "
+								+ "lower(trim(semester))=lower(trim('"+semester+"'))and "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"'))";
+						int cntSemester = 0;
+						ResultSet rsTeam = st.executeQuery(searchTeamSql);
+						while(rsTeam.next())cntSemester++;
+						
+						if(cntSemester!=0) {
+							JOptionPane.showMessageDialog(null, "Team already exists for semester");
+							return;
+						}
+						
+					}
+					
 					System.out.println(teamProjectChanged);
 					System.out.println(courseChanged);
 					
-					if(teamProjectChanged==false && courseChanged==false) {
+					// // Delete all existing members
+					//if(teamProjectChanged==false && courseChanged==false) {
 						String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
-								+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
-								+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
+								+ "lower(trim(team_name))=lower(trim('"+currentTeamName+"')) and "
+								+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
 								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-								+ "lower(trim(semester))=lower(trim('"+semester+"'))";
+								+ "lower(trim(semester))=lower(trim('"+currentSemester+"'))";
 						st.executeUpdate(deleteFromTeamMembersSql);
-					}
+					//}
 					
+					// // Delete from projects
+					String deleteFromProjectSql = "DELETE FROM `projects` where "
+							+ "lower(trim(team_name))=lower(trim('"+currentTeamName+"')) and "
+							+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
+							+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+							+ "lower(trim(semester))=lower(trim('"+currentSemester+"')) and "
+							+ "lower(trim(project_name))=lower(trim('"+currentProjectName+"'))";
+					st.executeUpdate(deleteFromProjectSql);
 					
+						
+					// // Insert into projects
+					String insertProjectSql = "INSERT INTO `projects`(`course_code`, `course_name`, `project_name`, `team_name`, `semester`, `username`) VALUES "
+							+ "('"+courseCode+"','"+courseName+"','"+projectName+"','"+teamName+"','"+semester+"','"+loginUserName+"')";
+					st.executeUpdate(insertProjectSql);
+						
+						
 					int teamLen = studentTable.getRowCount();
 					
+					
+					// // Inserting new memebers
 					if (teamLen > 0) {
 						for(int i=0;i<teamLen;i++) {
 							String studentId = studentTableModel.getValueAt(i, 0).toString();
@@ -406,41 +446,31 @@ public class EditTeamFrame extends JFrame{
 						}
 					}
 					else {
-						if (JOptionPane.showConfirmDialog(null, "Do you want to delete the team from team list?", "Delete team?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-							String deleteFromProjectSql = "DELETE FROM `projects` where "
-									+ "lower(trim(team_name))=lower(trim('"+teamName+"')) and "
-									+ "lower(trim(course_code))=lower(trim('"+courseCode+"')) and "
-									+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-									+ "lower(trim(semester))=lower(trim('"+semester+"')) and "
-									+ "lower(trim(project_name))=lower(trim('"+projectName+"'))";
-							st.executeUpdate(deleteFromProjectSql);
-							dispose();
-						} else {
-						    return;
-						}
+						JOptionPane.showMessageDialog(null, "Please enter students");
+						return;
 					}
 					
-					if(teamProjectChanged==true || courseChanged==true) {
-						teamLen = studentTable.getRowCount();
-						
-						if (teamLen > 0) {
-							for(int i=0;i<teamLen;i++) {
-								String studentId = studentTableModel.getValueAt(i, 0).toString();
-								String studentName = studentTableModel.getValueAt(i, 1).toString();
-								String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
-										+ "lower(trim(team_name))=lower(trim('"+currentTeamName+"')) and "
-										+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
-										+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-										+ "lower(trim(semester))=lower(trim('"+currentSemester+"')) and "
-										+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
-										+ "lower(trim(student_name))=lower(trim('"+studentName+"'))";
-								st.executeUpdate(deleteFromTeamMembersSql);
-								
-								System.out.println("in delete"+studentId);
-								System.out.println("in delete"+studentName);
-							}
-						}
-					}
+//					if(teamProjectChanged==true || courseChanged==true) {
+//						teamLen = studentTable.getRowCount();
+//						
+//						if (teamLen > 0) {
+//							for(int i=0;i<teamLen;i++) {
+//								String studentId = studentTableModel.getValueAt(i, 0).toString();
+//								String studentName = studentTableModel.getValueAt(i, 1).toString();
+//								String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
+//										+ "lower(trim(team_name))=lower(trim('"+currentTeamName+"')) and "
+//										+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
+//										+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+//										+ "lower(trim(semester))=lower(trim('"+currentSemester+"')) and "
+//										+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
+//										+ "lower(trim(student_name))=lower(trim('"+studentName+"'))";
+//								st.executeUpdate(deleteFromTeamMembersSql);
+//								
+//								System.out.println("in delete"+studentId);
+//								System.out.println("in delete"+studentName);
+//							}
+//						}
+//					}
 					
 					currentProjectName = projectName;
 					currentTeamName = teamName;
