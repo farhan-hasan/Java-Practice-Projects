@@ -27,7 +27,7 @@ public class MarkSheet extends JFrame{
 	JTextField studentIdTextField, studentNameTextField, sectionTextField, batchTextField, departmentTextField;
 	JTextField courseNameTextField, courseCodeTextField, semesterTextField;
 	
-	JButton saveButton, doneButton, printButton;
+	JButton saveButton, doneButton, printButton, calculateAttendanceButton;
 	
 	JTable studentTable;
 	JScrollPane studentTableScrollPane;
@@ -67,13 +67,17 @@ public class MarkSheet extends JFrame{
 					+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
 					+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 					+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))"
+							+ "order by student_id";
 			
 			ResultSet rsStudent = st.executeQuery(loadStudentSql);
 			
 			while(rsStudent.next()) {
 				String studentId = rsStudent.getString(1);
 				String studentName = rsStudent.getString(2);
+				
+				
+				
 				Object newRow[] = {studentId, studentName, "", "", "", "", "", "", ""};
 				studentTableModel.addRow(newRow);
 			}
@@ -281,7 +285,7 @@ public class MarkSheet extends JFrame{
 		   @Override
 		   public boolean isCellEditable(int row, int column) {
 		       //Only the third column
-		       return column == 2 || column == 3 || column == 4 || column == 5 || column == 6 || column == 7 || column == 8;
+		       return column >= 2;
 		   }
 		};
 		studentTable.setOpaque(true);
@@ -327,6 +331,8 @@ public class MarkSheet extends JFrame{
 				
 				int studentLen = studentTable.getRowCount();
 				boolean intCheck = false;
+				
+				
 				
 				for(int i=0; i<studentLen; i++) {
 					String studentId = studentTableModel.getValueAt(i, 0).toString();
@@ -453,9 +459,55 @@ public class MarkSheet extends JFrame{
 		});
 		add(saveButton);
 		
+		calculateAttendanceButton = new JButton("Calculate Attendance");
+		calculateAttendanceButton.setFont(buttonFont);
+		calculateAttendanceButton.setBounds(215,380,180,25);
+		calculateAttendanceButton.setForeground(Color.white);
+		calculateAttendanceButton.setFocusable(false);
+		calculateAttendanceButton.setBackground(darkColor);
+		calculateAttendanceButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				int len = studentTableModel.getRowCount();
+				try {
+					for(int i=0;i<len;i++) {
+						String studentId = studentTableModel.getValueAt(i,0).toString();
+						String calculateSql = "SELECT * FROM `attendance` WHERE "
+								+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
+								+ "lower(trim(batch))=lower(trim('"+parentBatch+"')) and "
+								+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
+								+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
+								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+								+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
+								+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))"
+										+ "order by student_id";
+						ResultSet rsCalculate = st.executeQuery(calculateSql);
+						
+						while(rsCalculate.next()) {
+							int cnt = 0;
+							for(int j=10;j<=51;j++) {
+								cnt += rsCalculate.getInt(j);
+								System.out.println("j = " + j + " " + cnt);
+							}
+							studentTableModel.setValueAt(cnt, i, 2);
+						}
+						
+						
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		add(calculateAttendanceButton);
+		
 		printButton = new JButton("Print");
 		printButton.setFont(buttonFont);
-		printButton.setBounds(215,380,180,25);
+		printButton.setBounds(410,380,180,25);
 		printButton.setForeground(Color.white);
 		printButton.setFocusable(false);
 		printButton.setBackground(darkColor);
@@ -484,7 +536,7 @@ public class MarkSheet extends JFrame{
 		
 		doneButton = new JButton("Done");
 		doneButton.setFont(buttonFont);
-		doneButton.setBounds(410,380,180,25);
+		doneButton.setBounds(605,380,180,25);
 		doneButton.setForeground(Color.white);
 		doneButton.setFocusable(false);
 		doneButton.setBackground(darkColor);

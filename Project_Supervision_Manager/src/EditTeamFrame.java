@@ -330,6 +330,17 @@ public class EditTeamFrame extends JFrame{
 					
 					System.out.println("current Project= " + currentProjectName);
 					System.out.println("Project = " + projectName);
+					int studentLen = studentTable.getRowCount();
+					for(int i=0;i<studentLen;i++) {
+						String studentId = studentTableModel.getValueAt(i, 0).toString();
+						for(int j=0;j<studentLen;j++) {
+							if(j==i)continue;
+							if(studentId.equals(studentTableModel.getValueAt(j, 0).toString())) {
+								JOptionPane.showMessageDialog(null, "Student ID must be unique");
+								return;
+							}
+						}
+					}
 					
 					// // Team and Project name validation
 					if(!teamName.equals(currentTeamName) || !projectName.equals(currentProjectName)) {

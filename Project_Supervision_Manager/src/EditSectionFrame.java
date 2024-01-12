@@ -10,6 +10,8 @@ import java.sql.Statement;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import com.mysql.cj.exceptions.RSAException;
+
 public class EditSectionFrame extends JFrame{
 	
 	Color lightColor = new Color(175, 244, 198);
@@ -80,7 +82,8 @@ public class EditSectionFrame extends JFrame{
 					+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
 					+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 					+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))"
+							+ "order by student_id";
 			
 			ResultSet rs = st.executeQuery(sql);
 			
@@ -342,6 +345,17 @@ public class EditSectionFrame extends JFrame{
 					
 					System.out.println(teamProjectChanged);
 					System.out.println(courseChanged);
+					int studentLen = studentTable.getRowCount();
+					for(int i=0;i<studentLen;i++) {
+						String studentId = studentTableModel.getValueAt(i, 0).toString();
+						for(int j=0;j<studentLen;j++) {
+							if(j==i)continue;
+							if(studentId.equals(studentTableModel.getValueAt(j, 0).toString())) {
+								JOptionPane.showMessageDialog(null, "Student ID must be unique");
+								return;
+							}
+						}
+					}
 					
 					String deleteFromTeamMembersSql = "DELETE FROM `student_list` where "
 							+ "lower(trim(section))=lower(trim('"+section+"')) and "
@@ -363,7 +377,116 @@ public class EditSectionFrame extends JFrame{
 									+ "('"+studentId+"','"+studentName+"','"+courseCode+"','"+courseName+"','"+section+"','"+batch+"','"+department+"','"+semester+"','"+loginUserName+"')";
 							st.executeUpdate(insertStudentsSql);
 							
+							// // search in marksheet
 							
+							String searchMarksheetSql = "SELECT * FROM `marksheet` WHERE "
+									+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
+									+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
+									+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
+									+ "lower(trim(batch))=lower(trim('"+parentBatch+"')) and "
+									+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
+									+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
+									+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+									+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+							
+							int cntMark = 0;
+							ResultSet rsMark = st.executeQuery(searchMarksheetSql);
+							while(rsMark.next())cntMark++;
+							
+							if(cntMark==0) {
+								String insertMarksheetSql = "INSERT INTO `marksheet`(`atendance`, `assignment`, `presentation`, `viva`, `tutorial`, `mid`, `final`, `student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`) "
+										+ "VALUES ("
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+										+ "'"+studentId+"',"
+										+ "'"+studentName+"',"
+										+ "'"+parentCourseCode+"',"
+										+ "'"+parentCourseName+"',"
+										+ "'"+parentSection+"',"
+										+ "'"+parentBatch+"',"
+										+ "'"+parentDepartment+"',"
+										+ "'"+parentSemester+"',"
+										+ "'"+loginUserName+"')";
+								System.out.println("check insert");
+								st.executeUpdate(insertMarksheetSql);
+							}
+							
+							
+							// // Attendance search
+							String searchAttendanceSql = "SELECT * FROM `attendance` WHERE "
+									+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
+									+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
+									+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
+									+ "lower(trim(batch))=lower(trim('"+parentBatch+"')) and "
+									+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
+									+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
+									+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
+									+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+							ResultSet rsAttendance = st.executeQuery(searchAttendanceSql);
+							int cntAttendance = 0;
+							while(rsAttendance.next())cntAttendance++;
+							
+							if(cntAttendance==0) {
+								String insertAttendanceSql = "INSERT INTO `attendance`(`student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19`, `20`, `21`, `22`, `23`, `24`, `25`, `26`, `27`, `28`, `29`, `30`, `31`, `32`, `33`, `34`, `35`, `36`, `37`, `38`, `39`, `40`, `41`, `42`) "
+										+ "VALUES ("
+										+ "'"+studentId+"',"
+										+ "'"+studentName+"',"
+										+ "'"+parentCourseCode+"',"
+										+ "'"+parentCourseName+"',"
+										+ "'"+parentSection+"',"
+										+ "'"+parentBatch+"',"
+										+ "'"+parentDepartment+"',"
+										+ "'"+parentSemester+"',"
+										+ "'"+loginUserName+"',"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0,"
+											+ "0)";
+								st.executeUpdate(insertAttendanceSql);
+							}
 						}
 					}
 					else {

@@ -91,7 +91,8 @@ public class AttendanceFrame extends JFrame{
 					+ "lower(trim(department))=lower(trim('"+parentDepartment+"')) and "
 					+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 					+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+					+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))"
+							+ "order by student_id";
 			
 			ResultSet rsStudent = st.executeQuery(loadStudentSql);
 			
@@ -123,38 +124,101 @@ public class AttendanceFrame extends JFrame{
 						+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 						+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
 						+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
-				// // // Start from here!
+				
 				ResultSet rsMark = st.executeQuery(loadMarkSql);
 				int cntStudent = 0;
 				while(rsMark.next()) {
-					String attendance = rsMark.getString(1);
-					String assignment = rsMark.getString(2);
-					String presentation = rsMark.getString(3);
-					String viva = rsMark.getString(4);
-					String tutorial = rsMark.getString(5);
-					String mid = rsMark.getString(6);
-					String finall = rsMark.getString(7);
-					studentTableModel.setValueAt(attendance, i, 2);
-					studentTableModel.setValueAt(assignment, i, 3);
-					studentTableModel.setValueAt(presentation, i, 4);
-					studentTableModel.setValueAt(viva, i, 5);
-					studentTableModel.setValueAt(tutorial, i, 6);
-					studentTableModel.setValueAt(mid, i, 7);
-					studentTableModel.setValueAt(finall, i, 8);
+					String one = rsMark.getString(10);
+					String two = rsMark.getString(11);
+					String three = rsMark.getString(12);
+					String four = rsMark.getString(13);
+					String five = rsMark.getString(14);
+					String six = rsMark.getString(15);
+					String seven = rsMark.getString(16);
+					String eight = rsMark.getString(17);
+					String nine = rsMark.getString(18);
+					String ten = rsMark.getString(19);
+					String eleven = rsMark.getString(20);
+					String twelve = rsMark.getString(21);
+					String thirteen = rsMark.getString(22);
+					String fourteen = rsMark.getString(23);
+					String fifteen = rsMark.getString(24);
+					String sixteen = rsMark.getString(25);
+					String seventeen = rsMark.getString(26);
+					String eighteen = rsMark.getString(27);
+					String nineteen = rsMark.getString(28);
+					String twenty = rsMark.getString(29);
+					String twentyone = rsMark.getString(30);
+					String twentytwo = rsMark.getString(31);
+					String twentythree = rsMark.getString(32);
+					String twentyfour = rsMark.getString(33);
+					String twentyfive = rsMark.getString(34);
+					String twentysix = rsMark.getString(35);
+					String twentyseven = rsMark.getString(36);
+					String twentyeight = rsMark.getString(37);
+					String twentynine = rsMark.getString(38);
+					String thirty = rsMark.getString(39);
+					String thirtyone = rsMark.getString(40);
+					String thirtytwo = rsMark.getString(41);
+					String thirtythree = rsMark.getString(42);
+					String thirtyfour = rsMark.getString(43);
+					String thirtyfive = rsMark.getString(44);
+					String thirtysix = rsMark.getString(45);
+					String thirtyseven = rsMark.getString(46);
+					String thirtyeight = rsMark.getString(47);
+					String thirtynine = rsMark.getString(48);
+					String forty = rsMark.getString(49);
+					String fortyone = rsMark.getString(50);
+					String fortytwo = rsMark.getString(51);
+					studentTableModel.setValueAt(one, i, 2);
+					studentTableModel.setValueAt(two, i, 3);
+					studentTableModel.setValueAt(three, i, 4);
+					studentTableModel.setValueAt(four, i, 5);
+					studentTableModel.setValueAt(five, i, 6);
+					studentTableModel.setValueAt(six, i, 7);
+					studentTableModel.setValueAt(seven, i, 8);
+					studentTableModel.setValueAt(eight, i, 9);
+					studentTableModel.setValueAt(nine, i, 10);
+					studentTableModel.setValueAt(ten, i, 11);
+					studentTableModel.setValueAt(eleven, i, 12);
+					studentTableModel.setValueAt(twelve, i, 13);
+					studentTableModel.setValueAt(thirteen, i, 14);
+					studentTableModel.setValueAt(fourteen, i, 15);
+					studentTableModel.setValueAt(fifteen, i, 16);
+					studentTableModel.setValueAt(sixteen, i, 17);
+					studentTableModel.setValueAt(seventeen, i, 18);
+					studentTableModel.setValueAt(eighteen, i, 19);
+					studentTableModel.setValueAt(nineteen, i, 20);
+					studentTableModel.setValueAt(twenty, i, 21);
+					studentTableModel.setValueAt(twentyone, i, 22);
+					studentTableModel.setValueAt(twentytwo, i, 23);
+					studentTableModel.setValueAt(twentythree, i, 24);
+					studentTableModel.setValueAt(twentyfour, i, 25);
+					studentTableModel.setValueAt(twentyfive, i, 26);
+					studentTableModel.setValueAt(twentysix, i, 27);
+					studentTableModel.setValueAt(twentyseven, i, 28);
+					studentTableModel.setValueAt(twentyeight, i, 29);
+					studentTableModel.setValueAt(twentynine, i, 30);
+					studentTableModel.setValueAt(thirty, i, 31);
+					studentTableModel.setValueAt(thirtyone, i, 32);
+					studentTableModel.setValueAt(thirtytwo, i, 33);
+					studentTableModel.setValueAt(thirtythree, i, 34);
+					studentTableModel.setValueAt(thirtyfour, i, 35);
+					studentTableModel.setValueAt(thirtyfive, i, 36);
+					studentTableModel.setValueAt(thirtysix, i, 37);
+					studentTableModel.setValueAt(thirtyseven, i, 38);
+					studentTableModel.setValueAt(thirtyeight, i, 39);
+					studentTableModel.setValueAt(thirtynine, i, 40);
+					studentTableModel.setValueAt(forty, i, 41);
+					studentTableModel.setValueAt(fortyone, i, 42);
+					studentTableModel.setValueAt(fortytwo, i, 43);
 					cntStudent++;
 				}
 				// // initializing with 0.
 				if(cntStudent==0) {
 					
-						String insertSql = "INSERT INTO `marksheet`(`atendance`, `assignment`, `presentation`, `viva`, `tutorial`, `mid`, `final`, `student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`) "
+						String insertSql = "INSERT INTO `attendance`(`student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `13`, `14`, `15`, `16`, `17`, `18`, `19`, `20`, `21`, `22`, `23`, `24`, `25`, `26`, `27`, `28`, `29`, `30`, `31`, `32`, `33`, `34`, `35`, `36`, `37`, `38`, `39`, `40`, `41`, `42`) "
 								+ "VALUES ("
-									+ "0,"
-									+ "0,"
-									+ "0,"
-									+ "0,"
-									+ "0,"
-									+ "0,"
-									+ "0,"
 								+ "'"+studentId+"',"
 								+ "'"+studentName+"',"
 								+ "'"+parentCourseCode+"',"
@@ -163,16 +227,60 @@ public class AttendanceFrame extends JFrame{
 								+ "'"+parentBatch+"',"
 								+ "'"+parentDepartment+"',"
 								+ "'"+parentSemester+"',"
-								+ "'"+loginUserName+"')";
+								+ "'"+loginUserName+"',"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0,"
+									+ "0)";
 						System.out.println("check insert");
 						st.executeUpdate(insertSql);
 				}
 			}
 			// // refresh list
-			for(int i=0;i<studentLen;i++) {
+			
+			
+			for(int i=0; i<studentLen; i++) {
 				String studentId = studentTableModel.getValueAt(i, 0).toString();
 				String studentName = studentTableModel.getValueAt(i, 1).toString();
-				String loadMarkSql = "SELECT * FROM `marksheet` WHERE "
+				String loadMarkSql = "SELECT * FROM `attendance` WHERE "
 						+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
 						+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
 						+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
@@ -184,20 +292,90 @@ public class AttendanceFrame extends JFrame{
 				
 				ResultSet rsMark = st.executeQuery(loadMarkSql);
 				while(rsMark.next()) {
-					String attendance = rsMark.getString(1);
-					String assignment = rsMark.getString(2);
-					String presentation = rsMark.getString(3);
-					String viva = rsMark.getString(4);
-					String tutorial = rsMark.getString(5);
-					String mid = rsMark.getString(6);
-					String finall = rsMark.getString(7);
-					studentTableModel.setValueAt(attendance, i, 2);
-					studentTableModel.setValueAt(assignment, i, 3);
-					studentTableModel.setValueAt(presentation, i, 4);
-					studentTableModel.setValueAt(viva, i, 5);
-					studentTableModel.setValueAt(tutorial, i, 6);
-					studentTableModel.setValueAt(mid, i, 7);
-					studentTableModel.setValueAt(finall, i, 8);
+					String one = rsMark.getString(10);
+					String two = rsMark.getString(11);
+					String three = rsMark.getString(12);
+					String four = rsMark.getString(13);
+					String five = rsMark.getString(14);
+					String six = rsMark.getString(15);
+					String seven = rsMark.getString(16);
+					String eight = rsMark.getString(17);
+					String nine = rsMark.getString(18);
+					String ten = rsMark.getString(19);
+					String eleven = rsMark.getString(20);
+					String twelve = rsMark.getString(21);
+					String thirteen = rsMark.getString(22);
+					String fourteen = rsMark.getString(23);
+					String fifteen = rsMark.getString(24);
+					String sixteen = rsMark.getString(25);
+					String seventeen = rsMark.getString(26);
+					String eighteen = rsMark.getString(27);
+					String nineteen = rsMark.getString(28);
+					String twenty = rsMark.getString(29);
+					String twentyone = rsMark.getString(30);
+					String twentytwo = rsMark.getString(31);
+					String twentythree = rsMark.getString(32);
+					String twentyfour = rsMark.getString(33);
+					String twentyfive = rsMark.getString(34);
+					String twentysix = rsMark.getString(35);
+					String twentyseven = rsMark.getString(36);
+					String twentyeight = rsMark.getString(37);
+					String twentynine = rsMark.getString(38);
+					String thirty = rsMark.getString(39);
+					String thirtyone = rsMark.getString(40);
+					String thirtytwo = rsMark.getString(41);
+					String thirtythree = rsMark.getString(42);
+					String thirtyfour = rsMark.getString(43);
+					String thirtyfive = rsMark.getString(44);
+					String thirtysix = rsMark.getString(45);
+					String thirtyseven = rsMark.getString(46);
+					String thirtyeight = rsMark.getString(47);
+					String thirtynine = rsMark.getString(48);
+					String forty = rsMark.getString(49);
+					String fortyone = rsMark.getString(50);
+					String fortytwo = rsMark.getString(51);
+					studentTableModel.setValueAt(one, i, 2);
+					studentTableModel.setValueAt(two, i, 3);
+					studentTableModel.setValueAt(three, i, 4);
+					studentTableModel.setValueAt(four, i, 5);
+					studentTableModel.setValueAt(five, i, 6);
+					studentTableModel.setValueAt(six, i, 7);
+					studentTableModel.setValueAt(seven, i, 8);
+					studentTableModel.setValueAt(eight, i, 9);
+					studentTableModel.setValueAt(nine, i, 10);
+					studentTableModel.setValueAt(ten, i, 11);
+					studentTableModel.setValueAt(eleven, i, 12);
+					studentTableModel.setValueAt(twelve, i, 13);
+					studentTableModel.setValueAt(thirteen, i, 14);
+					studentTableModel.setValueAt(fourteen, i, 15);
+					studentTableModel.setValueAt(fifteen, i, 16);
+					studentTableModel.setValueAt(sixteen, i, 17);
+					studentTableModel.setValueAt(seventeen, i, 18);
+					studentTableModel.setValueAt(eighteen, i, 19);
+					studentTableModel.setValueAt(nineteen, i, 20);
+					studentTableModel.setValueAt(twenty, i, 21);
+					studentTableModel.setValueAt(twentyone, i, 22);
+					studentTableModel.setValueAt(twentytwo, i, 23);
+					studentTableModel.setValueAt(twentythree, i, 24);
+					studentTableModel.setValueAt(twentyfour, i, 25);
+					studentTableModel.setValueAt(twentyfive, i, 26);
+					studentTableModel.setValueAt(twentysix, i, 27);
+					studentTableModel.setValueAt(twentyseven, i, 28);
+					studentTableModel.setValueAt(twentyeight, i, 29);
+					studentTableModel.setValueAt(twentynine, i, 30);
+					studentTableModel.setValueAt(thirty, i, 31);
+					studentTableModel.setValueAt(thirtyone, i, 32);
+					studentTableModel.setValueAt(thirtytwo, i, 33);
+					studentTableModel.setValueAt(thirtythree, i, 34);
+					studentTableModel.setValueAt(thirtyfour, i, 35);
+					studentTableModel.setValueAt(thirtyfive, i, 36);
+					studentTableModel.setValueAt(thirtysix, i, 37);
+					studentTableModel.setValueAt(thirtyseven, i, 38);
+					studentTableModel.setValueAt(thirtyeight, i, 39);
+					studentTableModel.setValueAt(thirtynine, i, 40);
+					studentTableModel.setValueAt(forty, i, 41);
+					studentTableModel.setValueAt(fortyone, i, 42);
+					studentTableModel.setValueAt(fortytwo, i, 43);
 				}
 			}
 					
@@ -210,7 +388,7 @@ public class AttendanceFrame extends JFrame{
 		
 		
 		getContentPane().setBackground(lightColor);
-		setSize(1624,520);
+		setSize(1495,520);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
@@ -307,7 +485,14 @@ public class AttendanceFrame extends JFrame{
 		
 		
 		
-		studentTable = new JTable(studentTableModel);
+		studentTable = new JTable(studentTableModel){
+
+		   @Override
+		   public boolean isCellEditable(int row, int column) {
+		       //Only the third column
+		       return column >= 2;
+		   }
+		};
 		studentTable.setOpaque(true);
 		studentTable.setFillsViewportHeight(true);
 		studentTable.setBackground(Color.white);
@@ -318,11 +503,11 @@ public class AttendanceFrame extends JFrame{
 		    if (i < 2) {
 		        column.setPreferredWidth(110); //third column is bigger
 		    } else {
-		        column.setPreferredWidth(32);
+		        column.setPreferredWidth(29);
 		    }
 		}
 		studentTableScrollPane = new JScrollPane(studentTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		studentTableScrollPane.setBounds(20, 120, 1567, 220); //962
+		studentTableScrollPane.setBounds(20, 120, 1441, 220); //962
 		studentTable.getTableHeader().setBackground(darkColor);
 		studentTable.getTableHeader().setForeground(Color.white);
 		studentTable.getTableHeader().setFont(labelFont);
@@ -358,29 +543,84 @@ public class AttendanceFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
 				int studentLen = studentTable.getRowCount();
+//				for(int i=0;i<studentLen;i++) {
+//					for(int j=2;j<44;j++) {
+//							String dig = studentTable.getValueAt(i,j).toString();
+//							int x = Integer.parseInt(dig);
+//							if(x<0 || x>1) {
+//								JOptionPane.showMessageDialog(null, "All cells should contain '0' or '1'");
+//								return;
+//							}
+//					}
+//				} 
+					
+				
+				
+				
 				boolean intCheck = false;
 				
 				for(int i=0; i<studentLen; i++) {
 					String studentId = studentTableModel.getValueAt(i, 0).toString();
 					String studentName = studentTableModel.getValueAt(i, 1).toString();
-					String attendance = studentTableModel.getValueAt(i, 2).toString();
-					String assignment = studentTableModel.getValueAt(i, 3).toString();
-					String presentation = studentTableModel.getValueAt(i, 4).toString();
-					String viva = studentTableModel.getValueAt(i, 5).toString();
-					String tutorial = studentTableModel.getValueAt(i, 6).toString();
-					String mid = studentTableModel.getValueAt(i, 7).toString();
-					String finall = studentTableModel.getValueAt(i, 8).toString();
+					String one = studentTableModel.getValueAt(i, 2).toString();
+					String two = studentTableModel.getValueAt(i, 3).toString();
+					String three = studentTableModel.getValueAt(i, 4).toString();
+					String four = studentTableModel.getValueAt(i, 5).toString();
+					String five = studentTableModel.getValueAt(i, 6).toString();
+					String six = studentTableModel.getValueAt(i, 7).toString();
+					String seven = studentTableModel.getValueAt(i, 8).toString();
+					String eight = studentTableModel.getValueAt(i, 9).toString();
+					String nine = studentTableModel.getValueAt(i, 10).toString();
+					String ten = studentTableModel.getValueAt(i, 11).toString();
+					String eleven = studentTableModel.getValueAt(i, 12).toString();
+					String twelve = studentTableModel.getValueAt(i, 13).toString();
+					String thirteen = studentTableModel.getValueAt(i, 14).toString();
+					String fourteen = studentTableModel.getValueAt(i, 15).toString();
+					String fifteen = studentTableModel.getValueAt(i, 16).toString();
+					String sixteen = studentTableModel.getValueAt(i, 17).toString();
+					String seventeen = studentTableModel.getValueAt(i, 18).toString();
+					String eighteen = studentTableModel.getValueAt(i, 19).toString();
+					String nineteen = studentTableModel.getValueAt(i, 20).toString();
+					String twenty = studentTableModel.getValueAt(i, 21).toString();
+					String twentyone = studentTableModel.getValueAt(i, 22).toString();
+					String twentytwo = studentTableModel.getValueAt(i, 23).toString();
+					String twentythree = studentTableModel.getValueAt(i, 24).toString();
+					String twentyfour = studentTableModel.getValueAt(i, 25).toString();
+					String twentyfive = studentTableModel.getValueAt(i, 26).toString();
+					String twentysix = studentTableModel.getValueAt(i, 27).toString();
+					String twentyseven = studentTableModel.getValueAt(i, 28).toString();
+					String twentyeight = studentTableModel.getValueAt(i, 29).toString();
+					String twentynine = studentTableModel.getValueAt(i, 30).toString();
+					String thirty = studentTableModel.getValueAt(i, 31).toString();
+					String thirtyone = studentTableModel.getValueAt(i, 32).toString();
+					String thirtytwo = studentTableModel.getValueAt(i, 33).toString();
+					String thirtythree = studentTableModel.getValueAt(i, 34).toString();
+					String thirtyfour = studentTableModel.getValueAt(i, 35).toString();
+					String thirtyfive = studentTableModel.getValueAt(i, 36).toString();
+					String thirtysix = studentTableModel.getValueAt(i, 37).toString();
+					String thirtyseven = studentTableModel.getValueAt(i, 38).toString();
+					String thirtyeight = studentTableModel.getValueAt(i, 39).toString();
+					String thirtynine = studentTableModel.getValueAt(i, 40).toString();
+					String forty = studentTableModel.getValueAt(i, 41).toString();
+					String fortyone = studentTableModel.getValueAt(i, 42).toString();
+					String fortytwo = studentTableModel.getValueAt(i, 43).toString();
 					
 					System.out.println(studentName);
 					
 					
 					
-					String[] inputs = {attendance,assignment,presentation,viva,tutorial,mid,finall};
+					String[] inputs = {
+							one,two,three,four,five,six,seven,eight,nine,ten,
+							eleven,twelve,thirteen,fourteen,fifteen,sixteen,seventeen,eighteen,nineteen,twenty,
+							twentyone,twentytwo,twentythree,twentyfour,twentyfive,twentysix,twentyseven,twentyeight,twentynine,thirty,
+							thirtyone,thirtytwo,thirtythree,thirtyfour,thirtyfive,thirtysix,thirtyseven,thirtyeight,thirtynine,forty,
+							fortyone,fortytwo
+					};
 					
-					for(int j=0;j<7;j++) {
+					for(int j=0;j<42;j++) {
 						String x = inputs[j];
+						System.out.println(x);
 						int len = x.length();
 						 for (char c : x.toCharArray()) {
 					            if (!Character.isDigit(c)) {
@@ -388,8 +628,9 @@ public class AttendanceFrame extends JFrame{
 					            	System.out.println("->" + c);
 					            	break;
 					            }
-					        }
+					       }
 						if(intCheck==true)break;
+						
 					}
 					
 					if(intCheck==true) {
@@ -397,28 +638,112 @@ public class AttendanceFrame extends JFrame{
 						return;
 					}
 					
-					int intAttendance = 0;
-					int intAssignment = 0;
-					int intPresentation = 0;
-					int intViva = 0;
-					int intTutorial = 0;
-					int intMid = 0;
-					int intFinall = 0;
+					for(int k=2;k<44;k++) {
+						String dig = studentTable.getValueAt(i,k).toString();
+						int y = Integer.parseInt(dig);
+						if(y<0 || y>1) {
+							JOptionPane.showMessageDialog(null, "All cells should contain '0' or '1'");
+							return;
+						}
+					}
 					
 					
-					if(!attendance.equals(""))intAttendance = Integer.parseInt(attendance);
-					if(!assignment.equals(""))intAssignment = Integer.parseInt(assignment);
-					if(!presentation.equals(""))intPresentation = Integer.parseInt(presentation);
-					if(!viva.equals(""))intViva = Integer.parseInt(viva);
-					if(!tutorial.equals(""))intTutorial = Integer.parseInt(tutorial);
-					if(!mid.equals(""))intMid = Integer.parseInt(mid);
-					if(!finall.equals(""))intFinall = Integer.parseInt(finall);
+					
+					int intstudentId = 0;
+					int intstudentName = 0;
+					int intone = 0;
+					int inttwo = 0;
+					int intthree = 0;
+					int intfour = 0;
+					int intfive = 0;
+					int intsix = 0;
+					int intseven = 0;
+					int inteight = 0;
+					int intnine = 0;
+					int intten = 0;
+					int inteleven = 0;
+					int inttwelve = 0;
+					int intthirteen = 0;
+					int intfourteen = 0;
+					int intfifteen = 0;
+					int intsixteen = 0;
+					int intseventeen = 0;
+					int inteighteen = 0;
+					int intnineteen = 0;
+					int inttwenty = 0;
+					int inttwentyone = 0;
+					int inttwentytwo = 0;
+					int inttwentythree = 0;
+					int inttwentyfour = 0;
+					int inttwentyfive = 0;
+					int inttwentysix = 0;
+					int inttwentyseven = 0;
+					int inttwentyeight = 0;
+					int inttwentynine = 0;
+					int intthirty = 0;
+					int intthirtyone = 0;
+					int intthirtytwo = 0;
+					int intthirtythree = 0;
+					int intthirtyfour = 0;
+					int intthirtyfive = 0;
+					int intthirtysix = 0;
+					int intthirtyseven = 0;
+					int intthirtyeight = 0;
+					int intthirtynine = 0;
+					int intforty = 0;
+					int intfortyone = 0;
+					int intfortytwo = 0;
+					
+
+					
+					if(!one.equals(""))intone = Integer.parseInt(one);
+					if(!two.equals(""))inttwo = Integer.parseInt(two);
+					if(!three.equals(""))intthree = Integer.parseInt(three);
+					if(!four.equals(""))intfour = Integer.parseInt(four);
+					if(!five.equals(""))intfive = Integer.parseInt(five);
+					if(!six.equals(""))intsix = Integer.parseInt(six);
+					if(!seven.equals(""))intseven = Integer.parseInt(seven);
+					if(!eight.equals(""))inteight = Integer.parseInt(eight);
+					if(!nine.equals(""))intnine = Integer.parseInt(nine);
+					if(!ten.equals(""))intten = Integer.parseInt(ten);
+					if(!eleven.equals(""))inteleven = Integer.parseInt(eleven);
+					if(!twelve.equals(""))inttwelve = Integer.parseInt(twelve);
+					if(!thirteen.equals(""))intthirteen = Integer.parseInt(thirteen);
+					if(!fourteen.equals(""))intfourteen = Integer.parseInt(fourteen);
+					if(!fifteen.equals(""))intfifteen = Integer.parseInt(fifteen);
+					if(!sixteen.equals(""))intsixteen = Integer.parseInt(sixteen);
+					if(!seventeen.equals(""))intseventeen = Integer.parseInt(seventeen);
+					if(!eighteen.equals(""))inteighteen = Integer.parseInt(eighteen);
+					if(!nineteen.equals(""))intnineteen = Integer.parseInt(nineteen);
+					if(!twenty.equals(""))inttwenty = Integer.parseInt(twenty);
+					if(!twentyone.equals(""))inttwentyone = Integer.parseInt(twentyone);
+					if(!twentytwo.equals(""))inttwentytwo = Integer.parseInt(twentytwo);
+					if(!twentythree.equals(""))inttwentythree = Integer.parseInt(twentythree);
+					if(!twentyfour.equals(""))inttwentyfour = Integer.parseInt(twentyfour);
+					if(!twentyfive.equals(""))inttwentyfive = Integer.parseInt(twentyfive);
+					if(!twentysix.equals(""))inttwentysix = Integer.parseInt(twentysix);
+					if(!twentyseven.equals(""))inttwentyseven = Integer.parseInt(twentyseven);
+					if(!twentyeight.equals(""))inttwentyeight = Integer.parseInt(twentyeight);
+					if(!twentynine.equals(""))inttwentynine = Integer.parseInt(twentynine);
+					if(!thirty.equals(""))intthirty = Integer.parseInt(thirty);
+					if(!thirtyone.equals(""))intthirtyone = Integer.parseInt(thirtyone);
+					if(!thirtytwo.equals(""))intthirtytwo = Integer.parseInt(thirtytwo);
+					if(!thirtythree.equals(""))intthirtythree = Integer.parseInt(thirtythree);
+					if(!thirtyfour.equals(""))intthirtyfour = Integer.parseInt(thirtyfour);
+					if(!thirtyfive.equals(""))intthirtyfive = Integer.parseInt(thirtyfive);
+					if(!thirtysix.equals(""))intthirtysix = Integer.parseInt(thirtysix);
+					if(!thirtyseven.equals(""))intthirtyseven = Integer.parseInt(thirtyseven);
+					if(!thirtyeight.equals(""))intthirtyeight = Integer.parseInt(thirtyeight);
+					if(!thirtynine.equals(""))intthirtynine = Integer.parseInt(thirtynine);
+					if(!forty.equals(""))intforty = Integer.parseInt(forty);
+					if(!fortyone.equals(""))intfortyone = Integer.parseInt(fortyone);
+					if(!fortytwo.equals(""))intfortytwo = Integer.parseInt(fortytwo);
 					
 					
 					
 					try {
 					// // searching if the student exists
-					String studentSearchSql = "SELECT * FROM `marksheet` WHERE "
+					String studentSearchSql = "SELECT * FROM `attendance` WHERE "
 							+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
 							+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
 							+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
@@ -431,17 +756,10 @@ public class AttendanceFrame extends JFrame{
 					int cntSearch = 0;
 					ResultSet rsSearch = st.executeQuery(studentSearchSql);
 					while(rsSearch.next())cntSearch++;
-					
+
 					if(cntSearch==0) {
 						String insertSql = "INSERT INTO `marksheet`(`atendance`, `assignment`, `presentation`, `viva`, `tutorial`, `mid`, `final`, `student_id`, `student_name`, `course_code`, `course_name`, `section`, `batch`, `department`, `semester`, `username`) "
 								+ "VALUES ("
-									+ ""+intAttendance+","
-									+ ""+intAssignment+","
-									+ ""+intPresentation+","
-									+ ""+intViva+","
-									+ ""+intTutorial+","
-									+ ""+intMid+","
-									+ ""+intFinall+","
 								+ "'"+studentId+"',"
 								+ "'"+studentName+"',"
 								+ "'"+parentCourseCode+"',"
@@ -450,20 +768,98 @@ public class AttendanceFrame extends JFrame{
 								+ "'"+parentBatch+"',"
 								+ "'"+parentDepartment+"',"
 								+ "'"+parentSemester+"',"
-								+ "'"+loginUserName+"')";
+								+ "'"+loginUserName+"'"
+								+ ""+intone+","
+								+ ""+inttwo+","
+								+ ""+intthree+","
+								+ ""+intfour+","
+								+ ""+intfive+","
+								+ ""+intsix+","
+								+ ""+intseven+","
+								+ ""+inteight+","
+								+ ""+intnine+","
+								+ ""+intten+","
+								+ ""+inteleven+","
+								+ ""+inttwelve+","
+								+ ""+intthirteen+","
+								+ ""+intfourteen+","
+								+ ""+intfifteen+","
+								+ ""+intsixteen+","
+								+ ""+intseventeen+","
+								+ ""+inteighteen+","
+								+ ""+intnineteen+","
+								+ ""+inttwenty+","
+								+ ""+inttwentyone+","
+								+ ""+inttwentytwo+","
+								+ ""+inttwentythree+","
+								+ ""+inttwentyfour+","
+								+ ""+inttwentyfive+","
+								+ ""+inttwentysix+","
+								+ ""+inttwentyseven+","
+								+ ""+inttwentyeight+","
+								+ ""+inttwentynine+","
+								+ ""+intthirty+","
+								+ ""+intthirtyone+","
+								+ ""+intthirtytwo+","
+								+ ""+intthirtythree+","
+								+ ""+intthirtyfour+","
+								+ ""+intthirtyfive+","
+								+ ""+intthirtysix+","
+								+ ""+intthirtyseven+","
+								+ ""+intthirtyeight+","
+								+ ""+intthirtynine+","
+								+ ""+intforty+","
+								+ ""+intfortyone+","
+								+ ""+intfortytwo+")";
 						System.out.println("check insert");
 						st.executeUpdate(insertSql);
 						
 					}
 					else {
-						String updateMarkSql = "UPDATE `marksheet` SET "
-								+ "atendance= "+intAttendance+", "
-								+ "assignment= "+intAssignment+", "
-								+ "presentation= "+intPresentation+", "
-								+ "viva= "+intViva+", "
-								+ "tutorial= "+intTutorial+", "
-								+ "mid= "+intMid+", "
-								+ "final= "+intFinall+" WHERE "
+						
+						String sql = "UPDATE `attendance` SET "
+								+ "`1`="+intone+","
+								+ "`2`="+inttwo+","
+								+ "`3`="+intthree+","
+								+ "`4`="+intfour+","
+								+ "`5`="+intfive+","
+								+ "`6`="+intsix+","
+								+ "`7`="+intseven+","
+								+ "`8`="+inteight+","
+								+ "`9`="+intnine+","
+								+ "`10`="+intten+","
+								+ "`11`="+inteleven+","
+								+ "`12`="+inttwelve+","
+								+ "`13`="+intthirteen+","
+								+ "`14`="+intfourteen+","
+								+ "`15`="+intfifteen+","
+								+ "`16`="+intsixteen+","
+								+ "`17`="+intseventeen+","
+								+ "`18`="+inteighteen+","
+								+ "`19`="+intnineteen+","
+								+ "`20`="+inttwenty+","
+								+ "`21`="+inttwentyone+","
+								+ "`22`="+inttwentytwo+","
+								+ "`23`="+inttwentythree+","
+								+ "`24`="+inttwentyfour+","
+								+ "`25`="+inttwentyfive+","
+								+ "`26`="+inttwentysix+","
+								+ "`27`="+inttwentyseven+","
+								+ "`28`="+inttwentyeight+","
+								+ "`29`="+inttwentynine+","
+								+ "`30`="+intthirty+","
+								+ "`31`="+intthirtyone+","
+								+ "`32`="+intthirtytwo+","
+								+ "`33`="+intthirtythree+","
+								+ "`34`="+intthirtyfour+","
+								+ "`35`="+intthirtyfive+","
+								+ "`36`="+intthirtysix+","
+								+ "`37`="+intthirtyseven+","
+								+ "`38`="+intthirtyeight+","
+								+ "`39`="+intthirtynine+","
+								+ "`40`="+forty+","
+								+ "`41`="+fortyone+","
+								+ "`42`="+fortytwo+" WHERE "
 								+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
 								+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
 								+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
@@ -472,9 +868,10 @@ public class AttendanceFrame extends JFrame{
 								+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 								+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
 								+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
+						
 						System.out.println("check update");
 						
-						st.executeUpdate(updateMarkSql);
+						st.executeUpdate(sql);
 					}
 					
 					

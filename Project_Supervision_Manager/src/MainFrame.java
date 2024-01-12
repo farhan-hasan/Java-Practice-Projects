@@ -880,6 +880,17 @@ public class MainFrame extends JFrame{
 					return;
 				}
 				
+				for(int i=0;i<len;i++) {
+					String studentId = newCourseStudentTable.getValueAt(i, 0).toString();
+					for(int j=0;j<len;j++) {
+						if(j==i)continue;
+						if(studentId.equals(newCourseStudentTable.getValueAt(j, 0).toString())) {
+							JOptionPane.showMessageDialog(null, "Student ID must be unique");
+							return;
+						}
+					}
+				}
+				
 				String section = newCourseSectionTextField.getText();
 				String batch = newCourseBatchTextField.getText();
 				String department = newCourseDepartmentTextField.getText();
@@ -1646,6 +1657,17 @@ public class MainFrame extends JFrame{
 				if(len==0) {
 					JOptionPane.showMessageDialog(null, "No students found");
 					return;
+				}
+				
+				for(int i=0;i<len;i++) {
+					String studentId = newProjectStudentTable.getValueAt(i, 0).toString();
+					for(int j=0;j<len;j++) {
+						if(j==i)continue;
+						if(studentId.equals(newProjectStudentTable.getValueAt(j, 0).toString())) {
+							JOptionPane.showMessageDialog(null, "Student ID must be unique");
+							return;
+						}
+					}
 				}
 				
 				String projectName = newProjectProjectNameTextField.getText();
