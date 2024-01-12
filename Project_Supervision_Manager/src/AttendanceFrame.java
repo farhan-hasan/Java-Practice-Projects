@@ -12,8 +12,9 @@ import java.util.Date;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
-public class MarkSheet extends JFrame{
+public class AttendanceFrame extends JFrame{
 	
 	Color lightColor = new Color(175, 244, 198);
 	Color darkColor = new Color(20, 174, 92);
@@ -32,7 +33,14 @@ public class MarkSheet extends JFrame{
 	JTable studentTable;
 	JScrollPane studentTableScrollPane;
 	Object studentTableData[][] = {};
-	String studentTableColumns[] = {"Student ID","Student Name","Attendance","Assignment","Presentation","Viva","Tutorial","Mid","Final"};
+	String studentTableColumns[] = {
+			"Student ID", "Student Name",
+			"1","2","3","4","5","6","7","8","9","10",
+			"11","12","13","14","15","16","17","18","19","20",
+			"21","22","23","24","25","26","27","28","29","30",
+			"31","32","33","34","35","36","37","38","39","40",
+			"41","42"
+			};
 	DefaultTableModel studentTableModel = new DefaultTableModel(studentTableData,studentTableColumns);
 	
 	Statement st;
@@ -44,7 +52,7 @@ public class MarkSheet extends JFrame{
 	
 	String currentStudentId, currentStudentName, currentProjectName, currentTeamName, currentCourseCode, currentCourseName, currentSemester;
 	
-	public MarkSheet(String[] data) {
+	public AttendanceFrame(String[] data) {
 		
 		parentCourseCode = data[0];
 		parentCourseName = data[1];
@@ -53,6 +61,22 @@ public class MarkSheet extends JFrame{
 		parentDepartment = data[4];
 		parentSemester = data[5];
 		loginUserName = data[6];
+		
+		
+//		currentProjectName = parentProjectName;
+//		currentTeamName = parentTeamName;
+//		currentCourseCode = parentCourseCode;
+//		currentCourseName = parentCourseName;
+//		currentSemester = parentSemester;
+		
+		System.out.println(parentCourseCode);
+		System.out.println(parentCourseName);
+		System.out.println(parentSection);
+		System.out.println(parentBatch);
+		System.out.println(parentDepartment);
+		System.out.println(parentSemester);
+		System.out.println(loginUserName);
+		
 		
 		try{
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -74,7 +98,14 @@ public class MarkSheet extends JFrame{
 			while(rsStudent.next()) {
 				String studentId = rsStudent.getString(1);
 				String studentName = rsStudent.getString(2);
-				Object newRow[] = {studentId, studentName, "", "", "", "", "", "", ""};
+				Object newRow[] = {
+						studentId, studentName, 
+						"", "", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "",
+						"", ""
+						};
 				studentTableModel.addRow(newRow);
 			}
 			
@@ -83,7 +114,7 @@ public class MarkSheet extends JFrame{
 			for(int i=0; i<studentLen; i++) {
 				String studentId = studentTableModel.getValueAt(i, 0).toString();
 				String studentName = studentTableModel.getValueAt(i, 1).toString();
-				String loadMarkSql = "SELECT * FROM `marksheet` WHERE "
+				String loadMarkSql = "SELECT * FROM `attendance` WHERE "
 						+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
 						+ "lower(trim(student_name))=lower(trim('"+studentName+"')) and "
 						+ "lower(trim(section))=lower(trim('"+parentSection+"')) and "
@@ -92,7 +123,7 @@ public class MarkSheet extends JFrame{
 						+ "lower(trim(course_code))=lower(trim('"+parentCourseCode+"')) and "
 						+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
 						+ "lower(trim(semester))=lower(trim('"+parentSemester+"'))";
-				
+				// // // Start from here!
 				ResultSet rsMark = st.executeQuery(loadMarkSql);
 				int cntStudent = 0;
 				while(rsMark.next()) {
@@ -179,7 +210,7 @@ public class MarkSheet extends JFrame{
 		
 		
 		getContentPane().setBackground(lightColor);
-		setSize(1024,520);
+		setSize(1624,520);
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
@@ -194,7 +225,7 @@ public class MarkSheet extends JFrame{
 		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("Marksheet");
+		setTitle("Attendance Sheet");
 		
 		courseCodeLabel = new JLabel("Course Code");
 		courseCodeLabel.setFont(labelFont);
@@ -263,32 +294,35 @@ public class MarkSheet extends JFrame{
 		
 		semesterLabel = new JLabel("Semester");
 		semesterLabel.setFont(labelFont);
-		semesterLabel.setBounds(800,330,280,70);
+		semesterLabel.setBounds(995,20,280,70);
 		semesterLabel.setForeground(Color.black);
 		add(semesterLabel);
 		
 		semesterTextField = new JTextField();
 		semesterTextField.setFont(textFieldFont);
 		semesterTextField.setEditable(false);
-		semesterTextField.setBounds(800,380,180,25);
+		semesterTextField.setBounds(995,70,180,25);
 		semesterTextField.setBackground(Color.white);
 		add(semesterTextField);
 		
 		
 		
-		studentTable = new JTable(studentTableModel){
-
-		   @Override
-		   public boolean isCellEditable(int row, int column) {
-		       //Only the third column
-		       return column == 2 || column == 3 || column == 4 || column == 5 || column == 6 || column == 7 || column == 8;
-		   }
-		};
+		studentTable = new JTable(studentTableModel);
 		studentTable.setOpaque(true);
 		studentTable.setFillsViewportHeight(true);
 		studentTable.setBackground(Color.white);
-		studentTableScrollPane = new JScrollPane(studentTable);
-		studentTableScrollPane.setBounds(20, 120, 962, 220);
+		studentTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		TableColumn column = null;
+		for (int i = 0; i < 44; i++) {
+		    column = studentTable.getColumnModel().getColumn(i);
+		    if (i < 2) {
+		        column.setPreferredWidth(110); //third column is bigger
+		    } else {
+		        column.setPreferredWidth(32);
+		    }
+		}
+		studentTableScrollPane = new JScrollPane(studentTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		studentTableScrollPane.setBounds(20, 120, 1567, 220); //962
 		studentTable.getTableHeader().setBackground(darkColor);
 		studentTable.getTableHeader().setForeground(Color.white);
 		studentTable.getTableHeader().setFont(labelFont);

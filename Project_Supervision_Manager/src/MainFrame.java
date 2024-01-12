@@ -500,7 +500,7 @@ public class MainFrame extends JFrame{
 				myCoursesTeamObj[4] = department;
 				//myCoursesTeamObj[5] on searh button and myCoursesTeamObj[6] at the beginning
 				
-				new SessionHistoryFrame(myCoursesTeamObj);
+				new AttendanceFrame(myCoursesTeamObj);
 				
 			}
 		});
@@ -1439,30 +1439,7 @@ public class MainFrame extends JFrame{
 					
 					myProjectsTeamTableModel.removeRow(myProjectsTeamTable.getSelectedRow());
 					
-//					String searchCourseSql = "SELECT `course_code`, `course_name` FROM `projects` WHERE "
-//							+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
-//							+ "lower(trim(course_name)) = lower(trim('"+courseName+"')) and "
-//							+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
-//							+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"'))";
-//					
-//					ResultSet rs2 = st.executeQuery(searchCourseSql);
-//					
-//					int cntCourse = 0;
-//					
-//					while(rs2.next())cntCourse++;
-//					
-//					if(cntCourse==0) {
-//						if (JOptionPane.showConfirmDialog(null, 
-//				            "Do you want to remove this course from you course list?", "Delete course?", 
-//				            JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-//							String deleteFromProjectsSql = "DELETE FROM `projects` WHERE "
-//									+ "lower(trim(semester)) = lower(trim('"+expandedSemester+"')) and "
-//									+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
-//									+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) and "
-//									+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
-//							st.executeUpdate(deleteFromProjectsSql);
-//				        }
-//					}
+
 					
 				
 				} catch (SQLException e1) {

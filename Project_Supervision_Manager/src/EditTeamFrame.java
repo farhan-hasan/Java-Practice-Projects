@@ -449,29 +449,6 @@ public class EditTeamFrame extends JFrame{
 						JOptionPane.showMessageDialog(null, "Please enter students");
 						return;
 					}
-					
-//					if(teamProjectChanged==true || courseChanged==true) {
-//						teamLen = studentTable.getRowCount();
-//						
-//						if (teamLen > 0) {
-//							for(int i=0;i<teamLen;i++) {
-//								String studentId = studentTableModel.getValueAt(i, 0).toString();
-//								String studentName = studentTableModel.getValueAt(i, 1).toString();
-//								String deleteFromTeamMembersSql = "DELETE FROM `team_members` where "
-//										+ "lower(trim(team_name))=lower(trim('"+currentTeamName+"')) and "
-//										+ "lower(trim(course_code))=lower(trim('"+currentCourseCode+"')) and "
-//										+ "lower(trim(username))=lower(trim('"+loginUserName+"')) and "
-//										+ "lower(trim(semester))=lower(trim('"+currentSemester+"')) and "
-//										+ "lower(trim(student_id))=lower(trim('"+studentId+"')) and "
-//										+ "lower(trim(student_name))=lower(trim('"+studentName+"'))";
-//								st.executeUpdate(deleteFromTeamMembersSql);
-//								
-//								System.out.println("in delete"+studentId);
-//								System.out.println("in delete"+studentName);
-//							}
-//						}
-//					}
-					
 					currentProjectName = projectName;
 					currentTeamName = teamName;
 					currentCourseCode = courseCode;

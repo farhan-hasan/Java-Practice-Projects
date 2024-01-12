@@ -48,7 +48,14 @@ public class Table extends JFrame {
 	// // Table
 	String columnNames[] = {"Serial","Names","ID"};
 	
-	DefaultTableModel model = new DefaultTableModel(data,columnNames);
+	DefaultTableModel model = new DefaultTableModel(data,columnNames){
+
+		   @Override
+		   public boolean isCellEditable(int row, int column) {
+		       //Only the third column
+		       return column == 2;
+		   }
+		};;
 	
 	
 	
