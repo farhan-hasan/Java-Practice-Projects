@@ -99,6 +99,11 @@ public class New_Stuff extends JFrame {
 		String DOBstr = DateFormat.getDateInstance().format(DOB);
 		System.out.println(DOBstr);
 		
+		
+		JButton iconButon = new JButton(new ImageIcon("C:\\Users\\Farhan\\Downloads\\img.png"));
+		iconButon.setBounds(200, 150, 100, 20);
+		panel1.add(iconButon);
+		
 		p1.add("Tab1",panel1);
 		p1.add("Tab2",panel2);
 		p1.add("Tab3",panel3);

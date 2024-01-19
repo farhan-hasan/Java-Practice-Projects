@@ -24,8 +24,8 @@ import com.toedter.calendar.JTextFieldDateEditor;
 
 public class SessionHistoryFrame extends JFrame{
 	
-	Color lightColor = new Color(175, 244, 198);
-	Color darkColor = new Color(20, 174, 92);
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
@@ -116,7 +116,7 @@ public class SessionHistoryFrame extends JFrame{
 		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("New Session");
+		setTitle("Session History");
 		
 		
 		dateFromLabel = new JLabel("From");
@@ -210,7 +210,7 @@ public class SessionHistoryFrame extends JFrame{
 		projectNameTextField.setFont(textFieldFont);
 		projectNameTextField.setBounds(605,70,180,25);
 		projectNameTextField.setBackground(Color.white);
-		projectNameTextField.setText(parentTeamName);
+		projectNameTextField.setText(parentProjectName);
 		projectNameTextField.setEditable(false);
 		add(projectNameTextField);
 		
@@ -224,11 +224,18 @@ public class SessionHistoryFrame extends JFrame{
 		teamNameTextField.setFont(textFieldFont);
 		teamNameTextField.setBounds(800,70,180,25);
 		teamNameTextField.setBackground(Color.white);
-		teamNameTextField.setText(parentCourseName);
+		teamNameTextField.setText(parentTeamName);
 		teamNameTextField.setEditable(false);
 		add(teamNameTextField);
 		
-		studentTable = new JTable(studentTableModel);
+		studentTable = new JTable(studentTableModel){
+
+			   @Override
+			   public boolean isCellEditable(int row, int column) {
+			       //Only the third column
+			       return column >= 3;
+			   }
+		};
 		studentTable.setOpaque(true);
 		studentTable.setFillsViewportHeight(true);
 		studentTable.setBackground(Color.white);
@@ -244,10 +251,10 @@ public class SessionHistoryFrame extends JFrame{
 				int idx = studentTable.getSelectedRow();
 				
 				
-				String attendance = "NULL";
-				String performance = "NULL";
-				String teamWork = "NULL";
-				String taskSubmission = "NULL";
+				String attendance = "0";
+				String performance = "0";
+				String teamWork = "0";
+				String taskSubmission = "0";
 				
 				Object attendanceObj = studentTableModel.getValueAt(idx, 3);
 				Object performanceObj = studentTableModel.getValueAt(idx, 4);
@@ -340,6 +347,27 @@ public class SessionHistoryFrame extends JFrame{
 				String teamWork = teamWorkTextField.getText();
 				String taskSubmission = taskSubmissionTextField.getText();
 				int idx = studentTable.getSelectedRow();
+				boolean intCheck = false;
+				
+				String[] inputs = {attendance,performance,teamWork,taskSubmission};
+				
+				for(int j=0;j<4;j++) {
+					String x = inputs[j];
+					int len = x.length();
+					 for (char c : x.toCharArray()) {
+				            if (!Character.isDigit(c)) {
+				            	intCheck = true; // Found a character that is not a digit
+				            	System.out.println("->" + c);
+				            	break;
+				            }
+				        }
+					if(intCheck==true)break;
+				}
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Please enter integer values in the table");
+					return;
+				}
 				
 				studentTableModel.setValueAt(attendance, idx, 3);
 				studentTableModel.setValueAt(performance, idx, 4);
@@ -361,17 +389,18 @@ public class SessionHistoryFrame extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int idx = studentTable.getSelectedRow();
-				String sessionDate = studentTableModel.getValueAt(idx, 0).toString();
+				
 				
 				int len = studentTable.getRowCount();
 				try {
 				for(int i=0;i<len;i++) {
-					String studentId = "NULL";
-					String studentName = "NULL";
-					String attendance = "NULL";
-					String performance = "NULL";
-					String teamwork = "NULL";
-					String taskSubmission = "NULL";
+					String studentId = "0";
+					String studentName = "0";
+					String attendance = "0";
+					String performance = "0";
+					String teamwork = "0";
+					String taskSubmission = "0";
+					String sessionDate = studentTableModel.getValueAt(i, 0).toString();
 					
 					Object studentIdObj = studentTableModel.getValueAt(i, 1);
 					Object studentNameObj = studentTableModel.getValueAt(i, 2);
@@ -387,7 +416,31 @@ public class SessionHistoryFrame extends JFrame{
 					if(teamworkObj!=null)teamwork = teamworkObj.toString();
 					if(taskSubmissionObj!=null)taskSubmission = taskSubmissionObj.toString();
 					
+					System.out.println(attendance);
+					System.out.println(performance);
+					System.out.println(teamwork);
+					System.out.println(taskSubmission);
 					
+					String[] inputs = {attendance,performance,teamwork,taskSubmission};
+					boolean intCheck = false;
+					for(int j=0;j<4;j++) {
+						String x = inputs[j];
+						 for (char c : x.toCharArray()) {
+					            if (!Character.isDigit(c)) {
+					            	intCheck = true; // Found a character that is not a digit
+					            	System.out.println("->" + c);
+					            	break;
+					            }
+					        }
+						if(intCheck==true)break;
+					}
+					
+					if(intCheck==true) {
+						JOptionPane.showMessageDialog(null, "Please enter integer values in the table");
+						return;
+					}
+					
+					System.out.println(sessionDate);
 					System.out.println("Check Update");
 					String UpdateSql = "UPDATE `session_history` SET "
 							+ "attendance = '"+attendance+"',"

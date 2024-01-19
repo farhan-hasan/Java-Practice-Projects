@@ -2,6 +2,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -19,6 +22,9 @@ public class RegisterFrame extends JFrame{
 	JTextField  mobileTextField, addressTextField;
 	JPasswordField passWordTextField, confirmPassWordTextField;
 	
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
+	
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
@@ -26,7 +32,6 @@ public class RegisterFrame extends JFrame{
 	
 	Connection con;
 	Statement st;
-	
 	public RegisterFrame() {
 		
 		try{
@@ -40,13 +45,16 @@ public class RegisterFrame extends JFrame{
 		}
 		
 		
-		getContentPane().setBackground(new Color(175, 244, 198));
+		
+		
+		
+		getContentPane().setBackground(lightColor);
 		setSize(800,600);
 		setDefaultCloseOperation(3);
 		setResizable(true);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("Project Supervision Manager");
+		setTitle("Teacher Companion");
 		
 		registerLabel = new JLabel("Register");
 		registerLabel.setFont(headingFont);
@@ -162,7 +170,7 @@ public class RegisterFrame extends JFrame{
 		registerButton.setBounds(110,460,240,30);
 		registerButton.setForeground(Color.white);
 		registerButton.setFocusable(false);
-		registerButton.setBackground(new Color(20, 174, 92));
+		registerButton.setBackground(darkColor);
 		registerButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -238,7 +246,7 @@ public class RegisterFrame extends JFrame{
 		loginButton.setBounds(450,460,240,30);
 		loginButton.setForeground(Color.white);
 		loginButton.setFocusable(false);
-		loginButton.setBackground(new Color(20, 174, 92));
+		loginButton.setBackground(darkColor);
 		loginButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -249,7 +257,6 @@ public class RegisterFrame extends JFrame{
 			}
 		});
 		add(loginButton);
-		
 		
 		
 		

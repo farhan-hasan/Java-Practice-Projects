@@ -12,8 +12,8 @@ import javax.swing.table.DefaultTableModel;
 
 public class EditTeamFrame extends JFrame{
 	
-	Color lightColor = new Color(175, 244, 198);
-	Color darkColor = new Color(20, 174, 92);
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
@@ -175,7 +175,14 @@ public class EditTeamFrame extends JFrame{
 		
 		
 		
-		studentTable = new JTable(studentTableModel);
+		studentTable = new JTable(studentTableModel){
+
+			   @Override
+			   public boolean isCellEditable(int row, int column) {
+			       //Only the third column
+			       return column >= 2;
+			   }
+		};
 		studentTable.setOpaque(true);
 		studentTable.setFillsViewportHeight(true);
 		studentTable.setBackground(Color.white);
@@ -217,25 +224,25 @@ public class EditTeamFrame extends JFrame{
 		studentIdLabel.setFont(labelFont);
 		studentIdLabel.setBounds(20,330,280,70);
 		studentIdLabel.setForeground(Color.black);
-		add(studentIdLabel);
+		//add(studentIdLabel);
 		
 		studentIdTextField = new JTextField();
 		studentIdTextField.setFont(textFieldFont);
 		studentIdTextField.setBounds(20,380,180,25);
 		studentIdTextField.setBackground(Color.white);
-		add(studentIdTextField);
+		//add(studentIdTextField);
 		
 		studentNameLabel = new JLabel("Student Name");
 		studentNameLabel.setFont(labelFont);
 		studentNameLabel.setBounds(215,330,280,70);
 		studentNameLabel.setForeground(Color.black);
-		add(studentNameLabel);
+		//add(studentNameLabel);
 		
 		studentNameTextField = new JTextField();
 		studentNameTextField.setFont(textFieldFont);
 		studentNameTextField.setBounds(215,380,180,25);
 		studentNameTextField.setBackground(Color.white);
-		add(studentNameTextField);
+		//add(studentNameTextField);
 		
 		// // setting the parent data in textfields
 		projectNameTextField.setText(parentProjectName);
@@ -247,7 +254,7 @@ public class EditTeamFrame extends JFrame{
 		
 		addButton = new JButton("Add");
 		addButton.setFont(buttonFont);
-		addButton.setBounds(410,380,180,25);
+		addButton.setBounds(20,380,180,25);
 		addButton.setForeground(Color.white);
 		addButton.setFocusable(false);
 		addButton.setBackground(darkColor);
@@ -257,6 +264,22 @@ public class EditTeamFrame extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				String studentId = studentIdTextField.getText();
 				String studentName = studentNameTextField.getText();
+				boolean intCheck = false;
+				
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				Object newRow[] = {studentId, studentName};
 				studentTableModel.addRow(newRow);
 				
@@ -266,7 +289,7 @@ public class EditTeamFrame extends JFrame{
 		
 		updateButton = new JButton("Update");
 		updateButton.setFont(buttonFont);
-		updateButton.setBounds(605,380,180,25);
+		updateButton.setBounds(215,380,180,25);
 		updateButton.setForeground(Color.white);
 		updateButton.setFocusable(false);
 		updateButton.setBackground(darkColor);
@@ -277,6 +300,20 @@ public class EditTeamFrame extends JFrame{
 				String studentId = studentIdTextField.getText();
 				String studentName = studentNameTextField.getText();
 				int idx = studentTable.getSelectedRow();
+				boolean intCheck = false;
+				String x = studentId;
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				
 				studentTableModel.setValueAt(studentId, idx, 0);
 				studentTableModel.setValueAt(studentName, idx, 1);
@@ -286,7 +323,7 @@ public class EditTeamFrame extends JFrame{
 		
 		deleteButton = new JButton("Delete");
 		deleteButton.setFont(buttonFont);
-		deleteButton.setBounds(800,380,180,25);
+		deleteButton.setBounds(410,380,180,25);
 		deleteButton.setForeground(Color.white);
 		deleteButton.setFocusable(false);
 		deleteButton.setBackground(darkColor);
@@ -333,6 +370,20 @@ public class EditTeamFrame extends JFrame{
 					int studentLen = studentTable.getRowCount();
 					for(int i=0;i<studentLen;i++) {
 						String studentId = studentTableModel.getValueAt(i, 0).toString();
+						boolean intCheck = false;
+						String x = studentId;
+						for (char c : x.toCharArray()) {
+				            if (!Character.isDigit(c)) {
+				            	intCheck = true; // Found a character that is not a digit
+				            	System.out.println("->" + c);
+				            	break;
+				            }
+				        }
+						
+						if(intCheck==true) {
+							JOptionPane.showMessageDialog(null, "Student ID should be a number");
+							return;
+						}
 						for(int j=0;j<studentLen;j++) {
 							if(j==i)continue;
 							if(studentId.equals(studentTableModel.getValueAt(j, 0).toString())) {
@@ -368,25 +419,32 @@ public class EditTeamFrame extends JFrame{
 					// // Course code and name validation
 					if(!courseName.equals(currentCourseName) || !courseCode.equals(currentCourseCode)) {
 						courseChanged = true;
-						String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE "
-								+ "lower(trim(course_code)) = lower(trim('"+courseCode+"')) or "
-								+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
+						
+						String searchCourseSql = "SELECT `course_code`, `course_name` FROM `course` WHERE lower(trim(course_code)) = lower(trim('"+courseCode+"')) or lower(trim(course_name)) = lower(trim('"+courseName+"'))";
 						ResultSet rs2 = st.executeQuery(searchCourseSql);
 						
-						int cntCourse = 0;
+						int cnt2 = 0;
 						String existingCourseCode = "", existingCourseName = "";
 						while(rs2.next()) {
-							existingCourseCode = rs2.getString(1);
-							existingCourseName = rs2.getString(2);
-							if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
+							existingCourseCode = rs2.getString(1).toLowerCase();
+							existingCourseName = rs2.getString(2).toLowerCase();
+							String code = courseCode.replaceAll("\\s", "").toLowerCase();
+							String name = courseName.replaceAll("\\s", "").toLowerCase();
+							String ecode = existingCourseCode.replaceAll("\\s", "").toLowerCase();
+							String ename = existingCourseName.replaceAll("\\s", "").toLowerCase();
+							System.out.println(code);
+							System.out.println(ecode);
+							System.out.println(name);
+							System.out.println(ename);
+							if(!name.equals(ename) && code.equals(ecode)) {
 								JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 								return;
 							}
-							if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
+							if(name.equals(ename) && !code.equals(ecode)) {
 								JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 								return;
 							}
-							cntCourse++;
+							cnt2++;
 						}
 						
 					}
@@ -453,6 +511,17 @@ public class EditTeamFrame extends JFrame{
 									+ "('"+teamName+"','"+courseCode+"','"+studentId+"','"+studentName+"','"+loginUserName+"','"+semester+"')";
 							st.executeUpdate(insertMembersSql);
 							
+							String UpdateSql = "UPDATE `session_history` SET "
+									+ "semester = '"+semester+"',"
+									+ "project_name = '"+projectName+"' WHERE "
+									+ "lower(trim(student_id)) = lower(trim('"+studentId+"')) and "
+									+ "lower(trim(student_name)) = lower(trim('"+studentName+"')) and "
+									+ "lower(trim(project_name)) = lower(trim('"+parentProjectName+"')) and "
+									+ "lower(trim(course_code)) = lower(trim('"+parentCourseCode+"')) and "
+									+ "lower(trim(username)) = lower(trim('"+loginUserName+"')) and "
+									+ "lower(trim(semester)) = lower(trim('"+parentSemester+"'))";
+							st.executeUpdate(UpdateSql);
+							
 							
 						}
 					}
@@ -460,6 +529,10 @@ public class EditTeamFrame extends JFrame{
 						JOptionPane.showMessageDialog(null, "Please enter students");
 						return;
 					}
+					
+					// // Session History Update
+					
+					
 					currentProjectName = projectName;
 					currentTeamName = teamName;
 					currentCourseCode = courseCode;

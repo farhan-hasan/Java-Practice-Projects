@@ -14,8 +14,8 @@ import com.mysql.cj.exceptions.RSAException;
 
 public class EditSectionFrame extends JFrame{
 	
-	Color lightColor = new Color(175, 244, 198);
-	Color darkColor = new Color(20, 174, 92);
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
@@ -272,6 +272,23 @@ public class EditSectionFrame extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				String studentId = studentIdTextField.getText();
 				String studentName = studentNameTextField.getText();
+				boolean intCheck = false;
+				
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
+				
 				Object newRow[] = {studentId, studentName};
 				studentTableModel.addRow(newRow);
 				
@@ -292,6 +309,21 @@ public class EditSectionFrame extends JFrame{
 				String studentId = studentIdTextField.getText();
 				String studentName = studentNameTextField.getText();
 				int idx = studentTable.getSelectedRow();
+				boolean intCheck = false;
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				
 				studentTableModel.setValueAt(studentId, idx, 0);
 				studentTableModel.setValueAt(studentName, idx, 1);
@@ -348,6 +380,23 @@ public class EditSectionFrame extends JFrame{
 					int studentLen = studentTable.getRowCount();
 					for(int i=0;i<studentLen;i++) {
 						String studentId = studentTableModel.getValueAt(i, 0).toString();
+						boolean intCheck = false;
+						String x = studentId;
+						int len = x.length();
+						for (char c : x.toCharArray()) {
+				            if (!Character.isDigit(c)) {
+				            	intCheck = true; // Found a character that is not a digit
+				            	System.out.println("->" + c);
+				            	break;
+				            }
+				        }
+						
+						if(intCheck==true) {
+							JOptionPane.showMessageDialog(null, "Student ID should be a number");
+							return;
+						}
+						
+						
 						for(int j=0;j<studentLen;j++) {
 							if(j==i)continue;
 							if(studentId.equals(studentTableModel.getValueAt(j, 0).toString())) {

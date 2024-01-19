@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,12 +14,18 @@ import java.sql.SQLException;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 
 public class MainFrame extends JFrame{
 	
-	Color lightColor = new Color(175, 244, 198);
-	Color darkColor = new Color(20, 174, 92);
-	Color red = new Color(242, 72, 34);
+	boolean flag = false;
+	ImageIcon signoutIcon = new ImageIcon("C:\\Users\\Farhan\\Downloads\\project icons\\signout.png");
+	ImageIcon searchIcon = new ImageIcon("C:\\Users\\Farhan\\Downloads\\project icons\\search.png");
+	
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
+	Color red = new Color(217, 56, 61);
+	Color tabColor = new Color(53, 56, 57);
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);
@@ -29,9 +36,33 @@ public class MainFrame extends JFrame{
 	
 	JButton myProjectsSignOutButton, myCoursesSignOutButton;
 	
+	JTable courseListTable;
+	JScrollPane courseListTableScrollPane;
+	Object courseListTableData[][] = {};
+	String courseListTableColumns[] = {"Course Code","Course Name"};
+	DefaultTableModel courseListTableModel = new DefaultTableModel(courseListTableData,courseListTableColumns);
+	
+	JTable courseListTable2;
+	JScrollPane courseListTableScrollPane2;
+	Object courseListTableData2[][] = {};
+	String courseListTableColumns2[] = {"Course Code","Course Name"};
+	DefaultTableModel courseListTableModel2 = new DefaultTableModel(courseListTableData2,courseListTableColumns2);
+	
+	JLabel courseListLabel,courseListLabel2;
+	
+	JButton courseListSearchButton, courseListSearchButton2;
+	
+	JTextField courseListSearchTextField, courseListSearchTextField2;
+	
 	// My Courses variables
 	
 	String myCoursesTeamObj[] = {"","","","","","",""};
+	
+	JButton myCourses1, myCourses2, myCourses3, myCourses4;
+	JButton newCourse1, newCourse2, newCourse3, newCourse4;
+	JButton myProjects1, myProjects2, myProjects3, myProjects4;
+	JButton newProject1, newProject2, newProject3, newProject4;
+	JButton signout1, signout2, signout3, signout4;
 	
 	JButton myCoursesSearchButton, myCoursesDeleteAllButton, myCoursesExpandButton, myCoursesMarkSheetButton;
 	JButton myCoursesAttendanceSheetButton, myCoursesEditSectionButton, myCoursesDeleteSectionButton;
@@ -119,9 +150,6 @@ public class MainFrame extends JFrame{
 	
 	public MainFrame(String username) {
 		
-		
-		
-		
 		prevTeamName = "";
 		prevProjectName = "";
 		prevCourseName = "";
@@ -129,10 +157,71 @@ public class MainFrame extends JFrame{
 		
 		loginUserName = username;
 		
+		courseListTable = new JTable(courseListTableModel){
+
+		   @Override
+		   public boolean isCellEditable(int row, int column) {
+		       //Only the third column
+		       return column >= 2;
+		   }
+		};
+		courseListTable.setOpaque(true);
+		courseListTable.setFillsViewportHeight(true);
+		courseListTable.setBackground(Color.white);
+		courseListTableScrollPane = new JScrollPane(courseListTable);
+		courseListTableScrollPane.setBounds(20, 500, 962, 180);
+		courseListTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = myCoursesCourseTable.getSelectedRow();
+				
+				
+			}
+		});
+		courseListTable.getTableHeader().setBackground(darkColor);
+		courseListTable.getTableHeader().setForeground(Color.white);
+		courseListTable.getTableHeader().setFont(labelFont);
+		
+		
+		courseListTable2 = new JTable(courseListTableModel){
+
+			   @Override
+			   public boolean isCellEditable(int row, int column) {
+			       //Only the third column
+			       return column >= 2;
+			   }
+			};
+		courseListTable2.setOpaque(true);
+		courseListTable2.setFillsViewportHeight(true);
+		courseListTable2.setBackground(Color.white);
+		courseListTableScrollPane2 = new JScrollPane(courseListTable2);
+		courseListTableScrollPane2.setBounds(20, 500, 962, 180);
+		courseListTable2.getTableHeader().setBackground(darkColor);
+		courseListTable2.getTableHeader().setForeground(Color.white);
+		courseListTable2.getTableHeader().setFont(labelFont);
+		
 		try{
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			con = DriverManager.getConnection("jdbc:mysql://localhost/teacher_companion","root","");
-			st = con.createStatement();	
+			st = con.createStatement();
+			
+			String searchSQL = "SELECT * FROM `course` order by course_code";
+			
+			
+			try {
+				
+				ResultSet rs = st.executeQuery(searchSQL);
+				while(rs.next()) {
+					String courseListCode = rs.getString(1).toUpperCase();
+					String courseListName = rs.getString(2).toUpperCase();
+					Object newRow[] = {courseListCode,courseListName};
+					courseListTableModel.addRow(newRow);
+					courseListTableModel2.addRow(newRow);
+				}
+				
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (SQLException e) {
@@ -145,30 +234,118 @@ public class MainFrame extends JFrame{
 		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("Project Supervision Manager");
+		setTitle("Teacher Companion (" + loginUserName + ")");
 		
 		UIDefaults defaults = UIManager.getDefaults();
         defaults.put("TabbedPane.borderHightlightColor", new Color(0, 0, 0, 0));
         defaults.put("TabbedPane.darkShadow", new Color(0, 0, 0, 0));
 		Insets insets = UIManager.getInsets("TabbedPane.contentBorderInsets");
 		insets.top = -1;
+		insets.left = -1;
+		insets.bottom = -1;
+		insets.right = -1;
 		UIManager.put("TabbedPane.contentBorderInsets", insets);
- 		UIManager.put("TabbedPane.selected", darkColor);
+ 		UIManager.put("TabbedPane.selected", lightColor);
 		
 		mainPane = new JTabbedPane();
 		mainPane.setBackground(lightColor); // tabs color
 		mainPane.setBounds(0, 0, 1024, 768);
 		mainPane.setForeground(Color.black);
+		mainPane.setUI(new javax.swing.plaf.metal.MetalTabbedPaneUI(){
+		      protected void paintTabArea(Graphics g,int tabPlacement,int selectedIndex){}
+		    });
 		mainPane.setFocusable(false);
 		add(mainPane);
 		
 		// // My Courses Tab
+		
+		
 		
 		myCoursesTeamObj[6] = username;
 		
 		myCoursesPanel = new JPanel();
 		myCoursesPanel.setLayout(null);
 		myCoursesPanel.setBackground(lightColor);
+		
+		myCourses1 = new JButton("My Courses");
+		myCourses1.setFont(buttonFont);
+		myCourses1.setBounds(20,0,180,25);
+		myCourses1.setForeground(Color.black);
+		myCourses1.setFocusable(false);
+		myCourses1.setBackground(lightColor);
+		myCourses1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(0);
+			}
+		});
+		myCoursesPanel.add(myCourses1);
+		
+		newCourse1 = new JButton("New Course");
+		newCourse1.setFont(buttonFont);
+		newCourse1.setBounds(215,0,180,25);
+		newCourse1.setForeground(Color.white);
+		newCourse1.setFocusable(false);
+		newCourse1.setBackground(darkColor);
+		newCourse1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(1);
+			}
+		});
+		myCoursesPanel.add(newCourse1);
+		
+		myProjects1 = new JButton("My Projects");
+		myProjects1.setFont(buttonFont);
+		myProjects1.setBounds(410,0,180,25);
+		myProjects1.setForeground(Color.white);
+		myProjects1.setFocusable(false);
+		myProjects1.setBackground(darkColor);
+		myProjects1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(2);
+			}
+		});
+		myCoursesPanel.add(myProjects1);
+		
+		newProject1 = new JButton("New Project");
+		newProject1.setFont(buttonFont);
+		newProject1.setBounds(605,0,180,25);
+		newProject1.setForeground(Color.white);
+		newProject1.setFocusable(false);
+		newProject1.setBackground(darkColor);
+		newProject1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(3);
+			}
+		});
+		myCoursesPanel.add(newProject1);
+		
+		signout1 = new JButton("Sign Out");
+		signout1.setFont(buttonFont);
+		signout1.setBounds(800,0,180,25);
+		signout1.setForeground(Color.white);
+		signout1.setFocusable(false);
+		signout1.setBackground(red);
+		signout1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+					new LoginFrame();
+				} else {
+				    return;
+				}	
+			}
+		});
+		myCoursesPanel.add(signout1);
 		
 		
 		myCoursesSemesterLabel = new JLabel("Semester [eg: Spring-2024]");
@@ -240,25 +417,7 @@ public class MainFrame extends JFrame{
 		});
 		myCoursesPanel.add(myCoursesSearchButton);
 		
-		myCoursesSignOutButton = new JButton("Sign Out");
-		myCoursesSignOutButton.setFont(buttonFont);
-		myCoursesSignOutButton.setBounds(800,20,180,25);
-		myCoursesSignOutButton.setForeground(Color.white);
-		myCoursesSignOutButton.setFocusable(false);
-		myCoursesSignOutButton.setBackground(red);
-		myCoursesSignOutButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-					dispose();
-					new LoginFrame();
-				} else {
-				    return;
-				}	
-			}
-		});
-		myCoursesPanel.add(myCoursesSignOutButton);
+		
 		
 		myCoursesDeleteAllButton = new JButton("Delete All");
 		myCoursesDeleteAllButton.setFont(buttonFont);
@@ -401,6 +560,9 @@ public class MainFrame extends JFrame{
 									+ "lower(trim(course_name)) = lower(trim('"+courseName+"'))";
 							st.executeUpdate(deleteFromCoursesSql);
 				        }
+						
+						myCoursesCourseTableModel.removeRow(myCoursesCourseTable.getSelectedRow());
+						
 					}
 					
 					
@@ -463,6 +625,8 @@ public class MainFrame extends JFrame{
 				myCoursesTeamObj[3] = batch;
 				myCoursesTeamObj[4] = department;
 				//myCoursesTeamObj[5] on searh button and myCoursesTeamObj[6] at the beginning
+				
+				
 				
 				new MarkSheet(myCoursesTeamObj);
 			}
@@ -616,6 +780,90 @@ public class MainFrame extends JFrame{
 		newCoursePanel.setLayout(null);
 		newCoursePanel.setBackground(lightColor);
 		
+		myCourses1 = new JButton("My Courses");
+		myCourses1.setFont(buttonFont);
+		myCourses1.setBounds(20,0,180,25);
+		myCourses1.setForeground(Color.white);
+		myCourses1.setFocusable(false);
+		myCourses1.setBackground(darkColor);
+		myCourses1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(0);
+			}
+		});
+		newCoursePanel.add(myCourses1);
+		
+		newCourse1 = new JButton("New Course");
+		newCourse1.setFont(buttonFont);
+		newCourse1.setBounds(215,0,180,25);
+		newCourse1.setForeground(Color.black);
+		newCourse1.setFocusable(false);
+		newCourse1.setBackground(lightColor);
+		newCourse1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				
+				
+				mainPane.setSelectedIndex(1);
+			}
+		});
+		newCoursePanel.add(newCourse1);
+		
+		myProjects1 = new JButton("My Projects");
+		myProjects1.setFont(buttonFont);
+		myProjects1.setBounds(410,0,180,25);
+		myProjects1.setForeground(Color.white);
+		myProjects1.setFocusable(false);
+		myProjects1.setBackground(darkColor);
+		myProjects1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(2);
+			}
+		});
+		newCoursePanel.add(myProjects1);
+		
+		newProject1 = new JButton("New Project");
+		newProject1.setFont(buttonFont);
+		newProject1.setBounds(605,0,180,25);
+		newProject1.setForeground(Color.white);
+		newProject1.setFocusable(false);
+		newProject1.setBackground(darkColor);
+		newProject1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(3);
+			}
+		});
+		newCoursePanel.add(newProject1);
+		
+		signout1 = new JButton("Sign Out");
+		signout1.setFont(buttonFont);
+		signout1.setBounds(800,0,180,25);
+		signout1.setForeground(Color.white);
+		signout1.setFocusable(false);
+		signout1.setBackground(red);
+		signout1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+					new LoginFrame();
+				} else {
+				    return;
+				}	
+			}
+		});
+		newCoursePanel.add(signout1);
+		
+		
 		
 		newCourseCourseCodeLabel = new JLabel("Course Code");
 		newCourseCourseCodeLabel.setFont(labelFont);
@@ -640,6 +888,18 @@ public class MainFrame extends JFrame{
 		newCourseCourseNameTextField.setBounds(215,70,180,25);
 		newCourseCourseNameTextField.setBackground(Color.white);
 		newCoursePanel.add(newCourseCourseNameTextField);
+		
+		courseListTable.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = courseListTable.getSelectedRow();
+				String courseCode = courseListTableModel.getValueAt(idx, 0).toString();
+				String courseName = courseListTableModel.getValueAt(idx, 1).toString();
+				newCourseCourseCodeTextField.setText(courseCode);
+				newCourseCourseNameTextField.setText(courseName);
+				
+			}
+		});
 		
 		newCourseSectionLabel = new JLabel("Section");
 		newCourseSectionLabel.setFont(labelFont);
@@ -816,6 +1076,26 @@ public class MainFrame extends JFrame{
 			public void actionPerformed(ActionEvent e) {
 				String studentId = newCourseStudentIdTextField.getText();
 				String studentName = newCourseStudentNameTextField.getText();
+				if(studentId.equals("") || studentName.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter student ID and Name.");
+					return;
+				}
+				boolean intCheck = false;
+				
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				Object newRow[] = {studentId, studentName};
 				newCourseStudentTableModel.addRow(newRow);
 				
@@ -882,6 +1162,22 @@ public class MainFrame extends JFrame{
 				
 				for(int i=0;i<len;i++) {
 					String studentId = newCourseStudentTable.getValueAt(i, 0).toString();
+					
+					boolean intCheck = false;
+					String x = studentId;
+					for (char c : x.toCharArray()) {
+			            if (!Character.isDigit(c)) {
+			            	intCheck = true; // Found a character that is not a digit
+			            	System.out.println("->" + c);
+			            	break;
+			            }
+			        }
+					
+					if(intCheck==true) {
+						JOptionPane.showMessageDialog(null, "Student ID should be a number");
+						return;
+					}
+					
 					for(int j=0;j<len;j++) {
 						if(j==i)continue;
 						if(studentId.equals(newCourseStudentTable.getValueAt(j, 0).toString())) {
@@ -913,13 +1209,21 @@ public class MainFrame extends JFrame{
 					int cnt2 = 0;
 					String existingCourseCode = "", existingCourseName = "";
 					while(rs2.next()) {
-						existingCourseCode = rs2.getString(1);
-						existingCourseName = rs2.getString(2);
-						if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
+						existingCourseCode = rs2.getString(1).toLowerCase();
+						existingCourseName = rs2.getString(2).toLowerCase();
+						String code = courseCode.replaceAll("\\s", "").toLowerCase();
+						String name = courseName.replaceAll("\\s", "").toLowerCase();
+						String ecode = existingCourseCode.replaceAll("\\s", "").toLowerCase();
+						String ename = existingCourseName.replaceAll("\\s", "").toLowerCase();
+						System.out.println(code);
+						System.out.println(ecode);
+						System.out.println(name);
+						System.out.println(ename);
+						if(!name.equals(ename) && code.equals(ecode)) {
 							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
-						if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
+						if(name.equals(ename) && !code.equals(ecode)) {
 							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
@@ -997,6 +1301,46 @@ public class MainFrame extends JFrame{
 		});
 		newCoursePanel.add(newCourseSaveButton);
 		
+		courseListLabel = new JLabel("Course List");
+		courseListLabel.setFont(labelFont);
+		courseListLabel.setBounds(20,440,280,70);
+		courseListLabel.setForeground(Color.black);
+		newCoursePanel.add(courseListLabel);
+		
+		
+		courseListSearchButton = new JButton("Search Course");
+		courseListSearchButton.setFont(buttonFont);
+		courseListSearchButton.setBounds(605,460,180,25);
+		courseListSearchButton.setForeground(Color.white);
+		courseListSearchButton.setFocusable(false);
+		courseListSearchButton.setBackground(darkColor);
+		courseListSearchButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(courseListTableModel);
+				courseListTable.setRowSorter(sorter);
+				sorter.setRowFilter(RowFilter.regexFilter(courseListSearchTextField.getText().toUpperCase()));
+			}
+		});
+		newCoursePanel.add(courseListSearchButton);
+		
+		
+		courseListSearchTextField = new JTextField();
+		courseListSearchTextField.setFont(textFieldFont);
+		courseListSearchTextField.setBounds(800,460,180,25);
+		courseListSearchTextField.setBackground(Color.white);
+		newCoursePanel.add(courseListSearchTextField);
+		
+		
+		
+		
+		// // Course List added. initialized at top.
+		DefaultTableModel model = (DefaultTableModel) courseListTable.getModel();
+		TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(model);
+		courseListTable.setRowSorter(sorter);
+		sorter.setRowFilter(RowFilter.regexFilter(courseListSearchTextField.getText()));
+		newCoursePanel.add(courseListTableScrollPane);
 		
 		
 		
@@ -1013,6 +1357,86 @@ public class MainFrame extends JFrame{
 		myProjectsPanel = new JPanel();
 		myProjectsPanel.setLayout(null);
 		myProjectsPanel.setBackground(lightColor);
+		
+		myCourses1 = new JButton("My Courses");
+		myCourses1.setFont(buttonFont);
+		myCourses1.setBounds(20,0,180,25);
+		myCourses1.setForeground(Color.white);
+		myCourses1.setFocusable(false);
+		myCourses1.setBackground(darkColor);
+		myCourses1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(0);
+			}
+		});
+		myProjectsPanel.add(myCourses1);
+		
+		newCourse1 = new JButton("New Course");
+		newCourse1.setFont(buttonFont);
+		newCourse1.setBounds(215,0,180,25);
+		newCourse1.setForeground(Color.white);
+		newCourse1.setFocusable(false);
+		newCourse1.setBackground(darkColor);
+		newCourse1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(1);
+			}
+		});
+		myProjectsPanel.add(newCourse1);
+		
+		myProjects1 = new JButton("My Projects");
+		myProjects1.setFont(buttonFont);
+		myProjects1.setBounds(410,0,180,25);
+		myProjects1.setForeground(Color.black);
+		myProjects1.setFocusable(false);
+		myProjects1.setBackground(lightColor);
+		myProjects1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(2);
+			}
+		});
+		myProjectsPanel.add(myProjects1);
+		
+		newProject1 = new JButton("New Project");
+		newProject1.setFont(buttonFont);
+		newProject1.setBounds(605,0,180,25);
+		newProject1.setForeground(Color.white);
+		newProject1.setFocusable(false);
+		newProject1.setBackground(darkColor);
+		newProject1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(3);
+			}
+		});
+		myProjectsPanel.add(newProject1);
+		
+		signout1 = new JButton("Sign Out");
+		signout1.setFont(buttonFont);
+		signout1.setBounds(800,0,180,25);
+		signout1.setForeground(Color.white);
+		signout1.setFocusable(false);
+		signout1.setBackground(red);
+		signout1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+					new LoginFrame();
+				} else {
+				    return;
+				}	
+			}
+		});
+		myProjectsPanel.add(signout1);
 		
 		
 		myProjectsSemesterLabel = new JLabel("Semester [eg: Spring-2024]");
@@ -1086,25 +1510,7 @@ public class MainFrame extends JFrame{
 		});
 		myProjectsPanel.add(myProjectsSearchButton);
 		
-		myProjectsSignOutButton = new JButton("Sign Out");
-		myProjectsSignOutButton.setFont(buttonFont);
-		myProjectsSignOutButton.setBounds(800,20,180,25);
-		myProjectsSignOutButton.setForeground(Color.white);
-		myProjectsSignOutButton.setFocusable(false);
-		myProjectsSignOutButton.setBackground(red);
-		myProjectsSignOutButton.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-					dispose();
-					new LoginFrame();
-				} else {
-				    return;
-				}	
-			}
-		});
-		myProjectsPanel.add(myProjectsSignOutButton);
+	
 		
 		myProjectsDeleteAllButton = new JButton("Delete All");
 		myProjectsDeleteAllButton.setFont(buttonFont);
@@ -1473,6 +1879,86 @@ public class MainFrame extends JFrame{
 		newProjectPanel.setLayout(null);
 		newProjectPanel.setBackground(lightColor);
 		
+		myCourses1 = new JButton("My Courses");
+		myCourses1.setFont(buttonFont);
+		myCourses1.setBounds(20,0,180,25);
+		myCourses1.setForeground(Color.white);
+		myCourses1.setFocusable(false);
+		myCourses1.setBackground(darkColor);
+		myCourses1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(0);
+			}
+		});
+		newProjectPanel.add(myCourses1);
+		
+		newCourse1 = new JButton("New Course");
+		newCourse1.setFont(buttonFont);
+		newCourse1.setBounds(215,0,180,25);
+		newCourse1.setForeground(Color.white);
+		newCourse1.setFocusable(false);
+		newCourse1.setBackground(darkColor);
+		newCourse1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(1);
+			}
+		});
+		newProjectPanel.add(newCourse1);
+		
+		myProjects1 = new JButton("My Projects");
+		myProjects1.setFont(buttonFont);
+		myProjects1.setBounds(410,0,180,25);
+		myProjects1.setForeground(Color.white);
+		myProjects1.setFocusable(false);
+		myProjects1.setBackground(darkColor);
+		myProjects1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(2);
+			}
+		});
+		newProjectPanel.add(myProjects1);
+		
+		newProject1 = new JButton("New Project");
+		newProject1.setFont(buttonFont);
+		newProject1.setBounds(605,0,180,25);
+		newProject1.setForeground(Color.black);
+		newProject1.setFocusable(false);
+		newProject1.setBackground(lightColor);
+		newProject1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mainPane.setSelectedIndex(3);
+			}
+		});
+		newProjectPanel.add(newProject1);
+		
+		signout1 = new JButton("Sign Out");
+		signout1.setFont(buttonFont);
+		signout1.setBounds(800,0,180,25);
+		signout1.setForeground(Color.white);
+		signout1.setFocusable(false);
+		signout1.setBackground(red);
+		signout1.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure?", "Sign Out?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+					dispose();
+					new LoginFrame();
+				} else {
+				    return;
+				}	
+			}
+		});
+		newProjectPanel.add(signout1);
+		
 		
 		newProjectProjectNameLabel = new JLabel("Project Name");
 		newProjectProjectNameLabel.setFont(labelFont);
@@ -1521,6 +2007,18 @@ public class MainFrame extends JFrame{
 		newProjectCourseNameTextField.setBounds(605,70,180,25);
 		newProjectCourseNameTextField.setBackground(Color.white);
 		newProjectPanel.add(newProjectCourseNameTextField);
+		
+		courseListTable2.addMouseListener(new MouseAdapter() {
+			
+			public void mouseClicked(MouseEvent e) {
+				int idx = courseListTable2.getSelectedRow();
+				String courseCode = courseListTableModel.getValueAt(idx, 0).toString();
+				String courseName = courseListTableModel.getValueAt(idx, 1).toString();
+				newProjectCourseCodeTextField.setText(courseCode);
+				newProjectCourseNameTextField.setText(courseName);
+				
+			}
+		});
 		
 		newProjectSemesterLabel = new JLabel("Semester");
 		newProjectSemesterLabel.setFont(labelFont);
@@ -1593,8 +2091,31 @@ public class MainFrame extends JFrame{
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				
 				String studentId = newProjectStudentIdTextField.getText();
 				String studentName = newProjectStudentNameTextField.getText();
+				
+				if(studentId.equals("") || studentName.equals("")) {
+					JOptionPane.showMessageDialog(null, "Please enter student ID and Name.");
+					return;
+				}
+				boolean intCheck = false;
+				
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				Object newRow[] = {studentId, studentName};
 				newProjectStudentTableModel.addRow(newRow);
 				
@@ -1615,6 +2136,21 @@ public class MainFrame extends JFrame{
 				String studentId = newProjectStudentIdTextField.getText();
 				String studentName = newProjectStudentNameTextField.getText();
 				int idx = newProjectStudentTable.getSelectedRow();
+				boolean intCheck = false;
+				String x = studentId;
+				int len = x.length();
+				for (char c : x.toCharArray()) {
+		            if (!Character.isDigit(c)) {
+		            	intCheck = true; // Found a character that is not a digit
+		            	System.out.println("->" + c);
+		            	break;
+		            }
+		        }
+				
+				if(intCheck==true) {
+					JOptionPane.showMessageDialog(null, "Student ID should be a number");
+					return;
+				}
 				
 				newProjectStudentTableModel.setValueAt(studentId, idx, 0);
 				newProjectStudentTableModel.setValueAt(studentName, idx, 1);
@@ -1661,6 +2197,20 @@ public class MainFrame extends JFrame{
 				
 				for(int i=0;i<len;i++) {
 					String studentId = newProjectStudentTable.getValueAt(i, 0).toString();
+					boolean intCheck = false;
+					String x = studentId;
+					for (char c : x.toCharArray()) {
+			            if (!Character.isDigit(c)) {
+			            	intCheck = true; // Found a character that is not a digit
+			            	System.out.println("->" + c);
+			            	break;
+			            }
+			        }
+					
+					if(intCheck==true) {
+						JOptionPane.showMessageDialog(null, "Student ID should be a number");
+						return;
+					}
 					for(int j=0;j<len;j++) {
 						if(j==i)continue;
 						if(studentId.equals(newProjectStudentTable.getValueAt(j, 0).toString())) {
@@ -1691,13 +2241,21 @@ public class MainFrame extends JFrame{
 					int cnt2 = 0;
 					String existingCourseCode = "", existingCourseName = "";
 					while(rs2.next()) {
-						existingCourseCode = rs2.getString(1);
-						existingCourseName = rs2.getString(2);
-						if(!courseName.equals(existingCourseName) && courseCode.equals(existingCourseCode)) {
+						existingCourseCode = rs2.getString(1).toLowerCase();
+						existingCourseName = rs2.getString(2).toLowerCase();
+						String code = courseCode.replaceAll("\\s", "").toLowerCase();
+						String name = courseName.replaceAll("\\s", "").toLowerCase();
+						String ecode = existingCourseCode.replaceAll("\\s", "").toLowerCase();
+						String ename = existingCourseName.replaceAll("\\s", "").toLowerCase();
+						System.out.println(code);
+						System.out.println(ecode);
+						System.out.println(name);
+						System.out.println(ename);
+						if(!name.equals(ename) && code.equals(ecode)) {
 							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
-						if(courseName.equals(existingCourseName) && !courseCode.equals(existingCourseCode)) {
+						if(name.equals(ename) && !code.equals(ecode)) {
 							JOptionPane.showMessageDialog(null, "Course code and name doesn't match");
 							return;
 						}
@@ -1784,7 +2342,39 @@ public class MainFrame extends JFrame{
 		});
 		newProjectPanel.add(newProjectSaveButton);
 		
+		courseListLabel2 = new JLabel("Course List");
+		courseListLabel2.setFont(labelFont);
+		courseListLabel2.setBounds(20,440,280,70);
+		courseListLabel2.setForeground(Color.black);
+		newProjectPanel.add(courseListLabel2);
 		
+		
+		courseListSearchButton2 = new JButton("Search Course");
+		courseListSearchButton2.setFont(buttonFont);
+		courseListSearchButton2.setBounds(605,460,180,25);
+		courseListSearchButton2.setForeground(Color.white);
+		courseListSearchButton2.setFocusable(false);
+		courseListSearchButton2.setBackground(darkColor);
+		courseListSearchButton2.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<DefaultTableModel>(courseListTableModel);
+				courseListTable.setRowSorter(sorter);
+				sorter.setRowFilter(RowFilter.regexFilter(courseListSearchTextField.getText().toUpperCase()));
+			}
+		});
+		newProjectPanel.add(courseListSearchButton2);
+		
+		
+		courseListSearchTextField2 = new JTextField();
+		courseListSearchTextField2.setFont(textFieldFont);
+		courseListSearchTextField2.setBounds(800,460,180,25);
+		courseListSearchTextField2.setBackground(Color.white);
+		newProjectPanel.add(courseListSearchTextField2);
+		
+		// // Course List added, initialized at top
+		newProjectPanel.add(courseListTableScrollPane2);
 		
 		
 		mainPane.add("New Project",newProjectPanel);

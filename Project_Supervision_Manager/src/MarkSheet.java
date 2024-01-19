@@ -15,8 +15,8 @@ import javax.swing.table.DefaultTableModel;
 
 public class MarkSheet extends JFrame{
 	
-	Color lightColor = new Color(175, 244, 198);
-	Color darkColor = new Color(20, 174, 92);
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
 	Font textFieldFont = new Font("Times New Roman", Font.BOLD, 15);

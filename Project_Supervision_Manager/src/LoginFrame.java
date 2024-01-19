@@ -16,6 +16,10 @@ public class LoginFrame extends JFrame {
 	JTextField userNameEmailTextField;
 	JPasswordField passWordTextField;
 	JButton loginButton, registerButton;
+	JCheckBox showHidePass;
+	
+	Color lightColor = new Color(255,255,255);
+	Color darkColor = new Color(34, 125, 128);
 	
 	Font labelFont = new Font("Times New Roman", Font.BOLD, 15);
 	Font headingFont = new Font("Times New Roman", Font.BOLD, 40);
@@ -37,13 +41,13 @@ public class LoginFrame extends JFrame {
 			e.printStackTrace();
 		}
 		
-		getContentPane().setBackground(new Color(175, 244, 198));
+		getContentPane().setBackground(lightColor);
 		setSize(800,600);
 		setDefaultCloseOperation(3);
 		setResizable(false);
 		setLayout(null);
 		setLocationRelativeTo(null);
-		setTitle("Project Supervision Manager");
+		setTitle("Teacher Companion");
 		
 		loginLabel = new JLabel("Login");
 		loginLabel.setFont(headingFont);
@@ -76,12 +80,31 @@ public class LoginFrame extends JFrame {
 		passWordTextField.setBackground(Color.white);
 		add(passWordTextField);
 		
+		showHidePass = new JCheckBox();
+		showHidePass.setFont(buttonFont);
+		showHidePass.setBounds(481,224,20,20);
+		showHidePass.setForeground(Color.white);
+		showHidePass.setFocusable(false);
+		showHidePass.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(showHidePass.isSelected()) {
+					passWordTextField.setEchoChar((char)0);
+				}
+				else {
+					passWordTextField.setEchoChar('*');
+				}
+			}
+		});
+		add(showHidePass);
+		
 		loginButton = new JButton("Login");
 		loginButton.setFont(buttonFont);
 		loginButton.setBounds(260,320,240,30);
 		loginButton.setForeground(Color.white);
 		loginButton.setFocusable(false);
-		loginButton.setBackground(new Color(20, 174, 92));
+		loginButton.setBackground(darkColor);
 		loginButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -90,16 +113,20 @@ public class LoginFrame extends JFrame {
 				String pass = passWordTextField.getText();
 				String sql = "SELECT `username`, `email`, `password` FROM `register` WHERE (username = '"+username+"' or email = '"+username+"') and password = '"+pass+"'";
 				
-				
+				String existingPass = "";
 				try {
 					ResultSet rs = st.executeQuery(sql);
 					int cnt=0;
 					while(rs.next()) {
 						username = rs.getString(1);
+						existingPass = rs.getString(3);
 						cnt++;
 					}
+					System.out.println(pass);
+					System.out.println(existingPass);
 					
-					if(cnt==0) {
+					
+					if(cnt==0 || !pass.equals(existingPass)) {
 						JOptionPane.showMessageDialog(null, "Invalid Credentials");
 					}
 					else {
@@ -130,7 +157,7 @@ public class LoginFrame extends JFrame {
 		registerButton.setBounds(260,420,240,30);
 		registerButton.setForeground(Color.white);
 		registerButton.setFocusable(false);
-		registerButton.setBackground(new Color(20, 174, 92));
+		registerButton.setBackground(darkColor);
 		registerButton.addActionListener(new ActionListener() {
 			
 			@Override
